@@ -1,0 +1,20 @@
+Manuale d'uso - Pompa di calore aria-acqua HP-9
+
+1. Introduzione
+La pompa di calore HP-9 preleva calore dall'aria esterna e lo trasferisce all'acqua dell'impianto di riscaldamento. In estate può funzionare al contrario e raffrescare l'abitazione. Il rendimento dipende dalla temperatura esterna: più l'aria è fredda, più energia serve per estrarre calore.
+
+2. Installazione
+L'unità esterna va installata su una base stabile, ad almeno 30 cm dal suolo, per evitare che neve o acqua stagnante ostruiscano la batteria alettata. Lasciare almeno 50 cm di spazio libero sui lati e 1,5 m davanti alla griglia di uscita dell'aria. Il collegamento elettrico deve essere eseguito da un tecnico abilitato su una linea dedicata da 16 A.
+
+3. Funzionamento in inverno
+Con temperature esterne inferiori a 5 °C la batteria dell'unità esterna può coprirsi di brina. La macchina esegue automaticamente un ciclo di sbrinamento della durata di 3-8 minuti: durante questa fase il ventilatore si ferma e dall'unità può uscire vapore. È un comportamento normale.
+La pompa di calore funziona fino a -20 °C esterni. Sotto i -15 °C la potenza resa si riduce e interviene la resistenza elettrica integrativa, se installata.
+
+4. Codici di errore
+E01 - Pressione alta: verificare che i filtri dell'acqua siano puliti e che le valvole dell'impianto siano aperte.
+E02 - Pressione bassa: possibile perdita di gas refrigerante. Contattare l'assistenza.
+E05 - Blocco per bassa temperatura: la temperatura esterna è scesa sotto il limite di funzionamento di -20 °C. La macchina riparte da sola quando la temperatura risale sopra -18 °C.
+E07 - Errore sonda esterna: la sonda di temperatura è scollegata o guasta. Contattare l'assistenza.
+
+5. Manutenzione
+Pulire il filtro dell'acqua ogni 6 mesi. Controllare una volta l'anno che la batteria alettata dell'unità esterna sia libera da foglie e polvere. Il controllo del circuito frigorifero deve essere eseguito da un tecnico certificato secondo la normativa F-gas.

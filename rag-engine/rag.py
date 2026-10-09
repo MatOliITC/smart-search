@@ -9,6 +9,8 @@ Node lo avvia come comando da terminale, ad esempio:
 import argparse
 import sys
 
+from extraction.extractor import extract_pages
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -37,8 +39,22 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def run_index(args: argparse.Namespace) -> int:
+    pages = extract_pages(args.file)
+
+    print(f"Documento: {args.document_name} - pagine estratte: {len(pages)}")
+    for page in pages:
+        preview = page["text"][:200].replace("\n", " ")
+        print(f"  pagina {page['page']}: {len(page['text'])} caratteri - \"{preview}...\"")
+    return 0
+
+
 def main() -> int:
     args = build_parser().parse_args()
+
+    if args.command == "index":
+        return run_index(args)
+
     print(f"Comando '{args.command}' non ancora implementato. Argomenti ricevuti: {vars(args)}")
     return 0
 
