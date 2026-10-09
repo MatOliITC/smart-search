@@ -9,7 +9,9 @@ Node lo avvia come comando da terminale, ad esempio:
 import argparse
 import sys
 
+import config
 from extraction.extractor import extract_pages
+from rag.chunking import chunk_pages
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -41,11 +43,13 @@ def build_parser() -> argparse.ArgumentParser:
 
 def run_index(args: argparse.Namespace) -> int:
     pages = extract_pages(args.file)
-
     print(f"Documento: {args.document_name} - pagine estratte: {len(pages)}")
-    for page in pages:
-        preview = page["text"][:200].replace("\n", " ")
-        print(f"  pagina {page['page']}: {len(page['text'])} caratteri - \"{preview}...\"")
+
+    chunks = chunk_pages(pages, config.CHUNK_SIZE, config.CHUNK_OVERLAP)
+    print(f"Chunk creati: {len(chunks)} (size {config.CHUNK_SIZE}, overlap {config.CHUNK_OVERLAP})")
+    for chunk in chunks:
+        print(f"\n--- chunk {chunk['chunk_index']} | pagina {chunk['page']} | {len(chunk['text'])} caratteri")
+        print(chunk["text"])
     return 0
 
 
