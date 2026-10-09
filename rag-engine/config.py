@@ -1,2 +1,3 @@
-# Impostazioni del motore RAG (modelli Ollama, percorsi, parametri di chunking).
-# Vengono aggiunte un passo alla volta, quando servono.
+
+CHUNK_SIZE = 800
+CHUNK_OVERLAP = 150
