@@ -12,6 +12,7 @@ import sys
 import config
 from extraction.extractor import extract_pages
 from rag.chunking import chunk_pages
+from rag.embeddings import embed_chunks
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -47,9 +48,16 @@ def run_index(args: argparse.Namespace) -> int:
 
     chunks = chunk_pages(pages, config.CHUNK_SIZE, config.CHUNK_OVERLAP)
     print(f"Chunk creati: {len(chunks)} (size {config.CHUNK_SIZE}, overlap {config.CHUNK_OVERLAP})")
+
+    chunks = embed_chunks(chunks, config.EMBEDDING_BATCH_SIZE)
+    print(f"Embedding calcolati con {config.EMBEDDING_MODEL}")
+
     for chunk in chunks:
+        vector = chunk["embedding"]
+        first_numbers = ", ".join(f"{n:.4f}" for n in vector[:5])
         print(f"\n--- chunk {chunk['chunk_index']} | pagina {chunk['page']} | {len(chunk['text'])} caratteri")
         print(chunk["text"])
+        print(f">>> embedding: {len(vector)} numeri [{first_numbers}, ...]")
     return 0
 
 
