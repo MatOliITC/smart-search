@@ -14,5 +14,4 @@ def embed_chunks(chunks: list[dict], batch_size: int) -> list[dict]:
         for chunk, vector in zip(batch, vectors):
             embedded.append({**chunk, "embedding": vector})
 
-    print(f"Embedded {len(embedded)}, {embedded} chunks")
     return embedded
