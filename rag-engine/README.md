@@ -21,8 +21,8 @@ python -m venv .venv
 # Attiva l'ambiente (da ripetere in ogni nuovo terminale)
 .venv\Scripts\Activate.ps1
 
-# Installa le dipendenze
-pip install -r requirements.txt
+# Installa le dipendenze (app + strumenti di sviluppo come ruff)
+pip install -r requirements-dev.txt
 ```
 
 Se PowerShell blocca `Activate.ps1` ("esecuzione di script disabilitata"):
@@ -100,6 +100,22 @@ python
 
 >>> exit()
 ```
+
+## Lint e formattazione (Ruff)
+
+Configurazione in `pyproject.toml`: righe da 80 caratteri, virgolette singole,
+import ordinati, avviso sui `print` fuori da `rag.py` ed `experiments/`.
+
+```powershell
+# Segnala i problemi e corregge quelli correggibili in automatico
+ruff check . --fix
+
+# Riformatta tutti i file
+ruff format .
+```
+
+In VS Code, con l'estensione Ruff e la cartella `smart-search` aperta,
+la formattazione avviene a ogni salvataggio.
 
 ## Configurazione
 

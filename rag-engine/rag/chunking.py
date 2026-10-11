@@ -8,35 +8,41 @@ class Unit(NamedTuple):
 
 
 LEVELS = [
-    (lambda text: re.split(r"\n\s*\n", text), "\n\n"),         # paragrafi
-    (lambda text: text.split("\n"), "\n"),                       # righe
-    (lambda text: re.split(r"(?<=[.!?;])\s+", text), " "),      # frasi
-    (lambda text: text.split(" "), " "),                         # parole
+    (lambda text: re.split(r'\n\s*\n', text), '\n\n'),  # paragrafi
+    (lambda text: text.split('\n'), '\n'),  # righe
+    (lambda text: re.split(r'(?<=[.!?;])\s+', text), ' '),  # frasi
+    (lambda text: text.split(' '), ' '),  # parole
 ]
 
 
-def chunk_pages(pages: list[dict], chunk_size: int, chunk_overlap: int) -> list[dict]:
+def chunk_pages(
+    pages: list[dict], chunk_size: int, chunk_overlap: int
+) -> list[dict]:
     chunks = []
     for page in pages:
-        for text in chunk_text(page["text"], chunk_size, chunk_overlap):
-            chunks.append({"chunk_index": len(chunks), "page": page["page"], "text": text})
+        for text in chunk_text(page['text'], chunk_size, chunk_overlap):
+            chunks.append(
+                {'chunk_index': len(chunks), 'page': page['page'], 'text': text}
+            )
     return chunks
 
 
 def chunk_text(text: str, chunk_size: int, chunk_overlap: int) -> list[str]:
-    units = split_into_units(text, chunk_size, level=0, joiner="")
+    units = split_into_units(text, chunk_size, level=0, joiner='')
     return merge_units(units, chunk_size, chunk_overlap)
 
 
-def split_into_units(text: str, chunk_size: int, level: int, joiner: str) -> list[Unit]:
+def split_into_units(
+    text: str, chunk_size: int, level: int, joiner: str
+) -> list[Unit]:
     if len(text) <= chunk_size or level == len(LEVELS):
         return [Unit(text, joiner)]
 
     split, level_joiner = LEVELS[level]
     parts = []
-    for part in split(text):               # A. taglia
-        if part.strip():                   # C. se non è vuoto...
-            parts.append(part.strip())     # B. ...aggiungilo senza spazi
+    for part in split(text):  # A. taglia
+        if part.strip():  # C. se non è vuoto...
+            parts.append(part.strip())  # B. ...aggiungilo senza spazi
 
     units = []
     for i, part in enumerate(parts):
@@ -45,7 +51,9 @@ def split_into_units(text: str, chunk_size: int, level: int, joiner: str) -> lis
     return units
 
 
-def merge_units(units: list[Unit], chunk_size: int, chunk_overlap: int) -> list[str]:
+def merge_units(
+    units: list[Unit], chunk_size: int, chunk_overlap: int
+) -> list[str]:
     chunks = []
     current: list[Unit] = []
 

@@ -18,9 +18,10 @@ def save_document_chunks(
     ]
 
     db = lancedb.connect(config.VECTOR_DB_PATH)
+    
     if config.VECTOR_TABLE in db.list_tables().tables:
         table = db.open_table(config.VECTOR_TABLE)
-        table.delete(f"document_id = {sql_string(document_id)}")
+        table.delete(f'document_id = {sql_string(document_id)}')
         table.add(records)
     else:
         db.create_table(config.VECTOR_TABLE, data=records)
@@ -28,17 +29,23 @@ def save_document_chunks(
     return len(records)
 
 
-def to_record(chunk: dict, folder_id: str, document_id: str, document_name: str, embedding_model: str) -> dict:
+def to_record(
+    chunk: dict,
+    folder_id: str,
+    document_id: str,
+    document_name: str,
+    embedding_model: str,
+) -> dict:
     return {
-        "id": f"{document_id}-{chunk['chunk_index']:04d}",
-        "folder_id": folder_id,
-        "document_id": document_id,
-        "document_name": document_name,
-        "page": chunk["page"],
-        "chunk_index": chunk["chunk_index"],
-        "text": chunk["text"],
-        "embedding_model": embedding_model,
-        "vector": chunk["embedding"],
+        'id': f'{document_id}-{chunk["chunk_index"]:04d}',
+        'folder_id': folder_id,
+        'document_id': document_id,
+        'document_name': document_name,
+        'page': chunk['page'],
+        'chunk_index': chunk['chunk_index'],
+        'text': chunk['text'],
+        'embedding_model': embedding_model,
+        'vector': chunk['embedding'],
     }
 
 

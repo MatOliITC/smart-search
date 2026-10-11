@@ -1,0 +1,16 @@
+[tool.ruff]
+line-length = 80
+target-version = "py312"
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint]
+# E/W: stile (pycodestyle), F: errori logici (pyflakes),
+# I: ordine degli import, T20: print dimenticati
+select = ["E", "F", "W", "I", "T20"]
+
+[tool.ruff.lint.per-file-ignores]
+# rag.py parla con Node via stdout; gli esperimenti stampano per mestiere.
+"rag.py" = ["T20"]
+"experiments/**" = ["T20"]

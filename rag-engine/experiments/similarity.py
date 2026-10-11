@@ -3,15 +3,15 @@ import sys
 
 from llm_client import embed
 
-QUESTION = "Perché la pompa si blocca quando fa molto freddo?"
+QUESTION = 'Perché la pompa si blocca quando fa molto freddo?'
 
 SENTENCES = [
-    "E05 - Blocco per bassa temperatura: la temperatura esterna è scesa sotto il limite di funzionamento di -20 °C.",
+    'E05 - Blocco per bassa temperatura: la temperatura esterna è scesa sotto il limite di funzionamento di -20 °C.',
     "Con temperature esterne inferiori a 5 °C la batteria dell'unità esterna può coprirsi di brina.",
-    "Il mio frigorifero si blocca quando fa molto caldo.",
+    'Il mio frigorifero si blocca quando fa molto caldo.',
     "Pulire il filtro dell'acqua ogni 6 mesi.",
     "L'unità esterna va installata su una base stabile, ad almeno 30 cm dal suolo.",
-    "La ricetta della carbonara prevede guanciale, uova e pecorino.",
+    'La ricetta della carbonara prevede guanciale, uova e pecorino.',
 ]
 
 
@@ -35,10 +35,10 @@ def main() -> None:
         for vector, sentence in zip(sentence_vectors, SENTENCES)
     ]
 
-    print(f"Domanda: {question}\n")
+    print(f'Domanda: {question}\n')
     for score, sentence in sorted(scores, reverse=True):
-        print(f"{score:.3f}  {sentence}")
+        print(f'{score:.3f}  {sentence}')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
