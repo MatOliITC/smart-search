@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36" version="29.2.3">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36">
   <diagram name="Page-1" id="RKHXfYgwq5rA0LBpZleA">
-    <mxGraphModel dx="2066" dy="1061" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="5000" math="0" shadow="0">
+    <mxGraphModel dx="2235" dy="1181" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="5000" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -63,8 +63,19 @@
         <mxCell id="kf4zYsGEd4mRXnqkCW8N-22" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Ollama &lt;br&gt;bge-m3 model" vertex="1">
           <mxGeometry height="60" width="120" x="1430" y="1890" as="geometry" />
         </mxCell>
+        <mxCell id="CrtUKFalff9B0QtZJ_XY-2" edge="1" parent="1" source="kf4zYsGEd4mRXnqkCW8N-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="CrtUKFalff9B0QtZJ_XY-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CrtUKFalff9B0QtZJ_XY-3" connectable="0" parent="CrtUKFalff9B0QtZJ_XY-2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="&lt;div&gt;&lt;span style=&quot;font-size: 11.7px;&quot;&gt;salva: testo + vettore + folder_id, document_id, document_name, page&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 11.7px;&quot;&gt;(sostituisce i chunk precedenti dello stesso document_id)&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.1135" y="6" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
         <mxCell id="kf4zYsGEd4mRXnqkCW8N-24" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Chunk + Embedding" vertex="1">
           <mxGeometry height="60" width="120" x="1430" y="2030" as="geometry" />
+        </mxCell>
+        <mxCell id="CrtUKFalff9B0QtZJ_XY-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e51400;fontColor=#ffffff;strokeColor=#B20000;" value="Vector DB&lt;div&gt;lancedb&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="1430" y="2220" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
