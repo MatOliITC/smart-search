@@ -49,7 +49,8 @@ python rag.py --help
 python rag.py index --help
 
 # Indicizza documento
-# Oggi: estrazione + chunking + embeddings, con stampa dei risultati (non salva ancora nulla)
+# Estrazione + chunking + embeddings + salvataggio nel vector DB (data/vectordb).
+# Rilanciarlo con lo stesso --document-id sostituisce i chunk precedenti, non li duplica.
 python rag.py index --file samples\pompa_di_calore.txt --folder-id f1 --document-id d1 --document-name pompa.txt
 
 # Avvia esperimento: similarità tra una domanda e alcune frasi
@@ -58,6 +59,10 @@ python -m experiments.similarity "Ogni quanto devo pulire il filtro?"
 
 # Statistiche sui chunk (utile quando cambi CHUNK_SIZE in config.py)
 python -m experiments.chunk_stats --file samples\pompa_di_calore.txt
+
+# Ispeziona il vector DB: documenti e chunk salvati, con anteprima del testo
+python -m experiments.inspect_db
+python -m experiments.inspect_db --folder-id f1
 ```
 
 `query` e `delete` esistono ma non sono ancora implementati.

@@ -1,1 +1,2 @@
 openai==3.28.0
+lancedb==0.40.0

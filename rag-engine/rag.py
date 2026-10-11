@@ -13,6 +13,7 @@ import config
 from extraction.extractor import extract_pages
 from rag.chunking import chunk_pages
 from rag.embeddings import embed_chunks
+from rag.vector_store import save_document_chunks
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -58,6 +59,11 @@ def run_index(args: argparse.Namespace) -> int:
         print(f"\n--- chunk {chunk['chunk_index']} | pagina {chunk['page']} | {len(chunk['text'])} caratteri")
         print(chunk["text"])
         print(f">>> embedding: {len(vector)} numeri [{first_numbers}, ...]")
+
+    saved = save_document_chunks(
+        chunks, args.folder_id, args.document_id, args.document_name, config.EMBEDDING_MODEL
+    )
+    print(f"\nSalvati {saved} chunk nel vector DB ({config.VECTOR_DB_PATH})")
     return 0
 
 
