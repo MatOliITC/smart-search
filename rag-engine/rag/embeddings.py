@@ -1,7 +1,13 @@
+from collections.abc import Callable
+
 from llm_client import embed
 
 
-def embed_chunks(chunks: list[dict], batch_size: int) -> list[dict]:
+def embed_chunks(
+    chunks: list[dict],
+    batch_size: int,
+    on_progress: Callable[[int, int], None] | None = None,
+) -> list[dict]:
     embedded = []
     for start in range(0, len(chunks), batch_size):
         # es. start = 0, batch = 2, i primi due chunks [0,1]
@@ -13,5 +19,9 @@ def embed_chunks(chunks: list[dict], batch_size: int) -> list[dict]:
         # lo spread del chunk e il suo vettore
         for chunk, vector in zip(batch, vectors):
             embedded.append({**chunk, 'embedding': vector})
+
+        # avvisa chi ci ha chiamato: quanti chunk fatti su quanti in totale
+        if on_progress:
+            on_progress(len(embedded), len(chunks))
 
     return embedded

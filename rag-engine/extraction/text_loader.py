@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from errors import RagError
+
 ENCODINGS = ('utf-8-sig', 'cp1252')
 
 
@@ -17,11 +19,14 @@ def load_parse_text(path: Path) -> list[dict]:
         except UnicodeDecodeError:
             continue
     else:
-        raise ValueError(f'Encoding non riconosciuto per il file {path.name}')
+        raise RagError(
+            'UNKNOWN_ENCODING',
+            f'Encoding non riconosciuto per il file {path.name}',
+        )
 
     text = string_normalizer(text)
 
     if not text:
-        raise ValueError(f'Il file {path.name} non contiene testo')
+        raise RagError('EMPTY_FILE', f'Il file {path.name} non contiene testo')
 
     return [{'page': 1, 'text': text}]

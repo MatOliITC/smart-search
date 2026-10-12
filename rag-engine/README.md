@@ -51,7 +51,13 @@ python rag.py index --help
 # Indicizza documento
 # Estrazione + chunking + embeddings + salvataggio nel vector DB (data/vectordb).
 # Rilanciarlo con lo stesso --document-id sostituisce i chunk precedenti, non li duplica.
+# Su stdout stampa solo righe JSON (una per evento: progress, result, error), pensate per Node.
 python rag.py index --file samples\pompa_di_calore.txt --folder-id f1 --document-id d1 --document-name pompa.txt
+
+# Fa la parte di Node: lancia rag.py index, legge le righe JSON e le traduce in testo
+# (--folder-id, --document-id e --document-name hanno valori di default: f1, d1, documento.txt)
+python -m experiments.run_index --file samples\pompa_di_calore.txt
+python -m experiments.run_index --file samples\tagliando_auto.txt --folder-id f2 --document-id d2 --document-name tagliando.txt
 
 # Avvia esperimento: similarità tra una domanda e alcune frasi
 python -m experiments.similarity
@@ -70,12 +76,21 @@ python -m experiments.inspect_db --folder-id f1
 ## Prove di errore
 
 ```powershell
-# Argomento mancante → errore di argparse, exit code 2
+# Argomento mancante → errore di argparse (testo, non JSON), exit code 2
 python rag.py index --folder-id f1 --document-id d1 --document-name x
 
-# File inesistente → FileNotFoundError
-python rag.py index --file nonesiste.txt --folder-id f1 --document-id d1 --document-name x
+# File inesistente → {"type": "error", "code": "FILE_NOT_FOUND", ...}, exit code 1
+python -m experiments.run_index --file nonesiste.txt
+
+# Formato non gestito → UNSUPPORTED_FORMAT
+python -m experiments.run_index --file pyproject.toml
+
+# Ollama spento → MODEL_SERVER_UNREACHABLE (dopo qualche secondo di tentativi)
 ```
+
+Codici di errore possibili: `FILE_NOT_FOUND`, `UNSUPPORTED_FORMAT`, `UNKNOWN_ENCODING`,
+`EMPTY_FILE`, `MODEL_SERVER_UNREACHABLE`, `MODEL_NOT_FOUND`, `NOT_IMPLEMENTED`,
+`INTERNAL_ERROR` (errore imprevisto: il traceback completo va su stderr).
 
 ## Sperimentare dalla console Python
 

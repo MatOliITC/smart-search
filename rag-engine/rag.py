@@ -4,12 +4,19 @@ Node lo avvia come comando da terminale, ad esempio:
     python rag.py index --file C:/docs/manuale.txt --folder-id <uuid> --document-id <uuid> --document-name manuale.txt
     python rag.py query --folder-id <uuid> --question "Perché la pompa va in blocco?"
     python rag.py delete --document-id <uuid>
+
+Protocollo: su stdout solo righe JSON, una per evento, con "type" uguale a
+"progress", "result" o "error". Log e dettagli degli errori vanno su stderr.
+Exit code 0 = ok, 1 = errore.
 """
 
 import argparse
+import json
 import sys
+import traceback
 
 import config
+from errors import RagError
 from extraction.extractor import extract_pages
 from rag.chunking import chunk_pages
 from rag.embeddings import embed_chunks
@@ -68,27 +75,27 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def run_index(args: argparse.Namespace) -> int:
-    pages = extract_pages(args.file)
-    print(f'Documento: {args.document_name} - pagine estratte: {len(pages)}')
+def emit(event_type: str, **data) -> None:
+    event = {'type': event_type, **data}
+    print(json.dumps(event, ensure_ascii=False), flush=True)
 
+
+def run_index(args: argparse.Namespace) -> int:
+    emit('progress', stage='extracting')
+    pages = extract_pages(args.file)
+
+    emit('progress', stage='chunking', pages=len(pages))
     chunks = chunk_pages(pages, config.CHUNK_SIZE, config.CHUNK_OVERLAP)
-    print(
-        f'Chunk creati: {len(chunks)} (size {config.CHUNK_SIZE}, overlap {config.CHUNK_OVERLAP})'
+
+    chunks = embed_chunks(
+        chunks,
+        config.EMBEDDING_BATCH_SIZE,
+        on_progress=lambda done, total: emit(
+            'progress', stage='embedding', done=done, total=total
+        ),
     )
 
-    chunks = embed_chunks(chunks, config.EMBEDDING_BATCH_SIZE)
-    print(f'Embedding calcolati con {config.EMBEDDING_MODEL}')
-
-    for chunk in chunks:
-        vector = chunk['embedding']
-        first_numbers = ', '.join(f'{n:.4f}' for n in vector[:5])
-        print(
-            f'\n--- chunk {chunk["chunk_index"]} | pagina {chunk["page"]} | {len(chunk["text"])} caratteri'
-        )
-        print(chunk['text'])
-        print(f'>>> embedding: {len(vector)} numeri [{first_numbers}, ...]')
-
+    emit('progress', stage='saving', chunks=len(chunks))
     saved = save_document_chunks(
         chunks,
         args.folder_id,
@@ -96,20 +103,41 @@ def run_index(args: argparse.Namespace) -> int:
         args.document_name,
         config.EMBEDDING_MODEL,
     )
-    print(f'\nSalvati {saved} chunk nel vector DB ({config.VECTOR_DB_PATH})')
+
+    emit(
+        'result',
+        document_id=args.document_id,
+        pages=len(pages),
+        chunks=saved,
+        embedding_model=config.EMBEDDING_MODEL,
+    )
     return 0
 
 
 def main() -> int:
+    # forcing for node js
+    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stderr.reconfigure(encoding='utf-8')
+
     args = build_parser().parse_args()
 
-    if args.command == 'index':
-        return run_index(args)
+    try:
+        if args.command == 'index':
+            return run_index(args)
 
-    print(
-        f"Comando '{args.command}' non ancora implementato. Argomenti ricevuti: {vars(args)}"
-    )
-    return 0
+        emit(
+            'error',
+            code='NOT_IMPLEMENTED',
+            message=f"Comando '{args.command}' non ancora implementato",
+        )
+        return 1
+    except RagError as error:
+        emit('error', code=error.code, message=error.message)
+        return 1
+    except Exception as error:
+        traceback.print_exc()
+        emit('error', code='INTERNAL_ERROR', message=str(error))
+        return 1
 
 
 if __name__ == '__main__':
