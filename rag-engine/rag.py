@@ -18,9 +18,10 @@ import traceback
 import config
 from errors import RagError
 from extraction.extractor import extract_pages
+from llm_client import embed
 from rag.chunking import chunk_pages
 from rag.embeddings import embed_chunks
-from rag.vector_store import save_document_chunks
+from rag.vector_store import save_document_chunks, search_chunks
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -114,6 +115,22 @@ def run_index(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_query(args: argparse.Namespace) -> int:
+    emit('progress', stage='embedding_question')
+    question_vector = embed([args.question])[0]
+
+    emit('progress', stage='searching')
+    chunks = search_chunks(
+        question_vector,
+        args.folder_id,
+        config.EMBEDDING_MODEL,
+        args.top_k,
+    )
+
+    emit('result', question=args.question, chunks=chunks)
+    return 0
+
+
 def main() -> int:
     # forcing for node js
     sys.stdout.reconfigure(encoding='utf-8')
@@ -124,6 +141,8 @@ def main() -> int:
     try:
         if args.command == 'index':
             return run_index(args)
+        if args.command == 'query':
+            return run_query(args)
 
         emit(
             'error',

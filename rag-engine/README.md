@@ -59,6 +59,16 @@ python rag.py index --file samples\pompa_di_calore.txt --folder-id f1 --document
 python -m experiments.run_index --file samples\pompa_di_calore.txt
 python -m experiments.run_index --file samples\tagliando_auto.txt --folder-id f2 --document-id d2 --document-name tagliando.txt
 
+# Cerca i chunk più pertinenti a una domanda, solo nella cartella indicata
+# Risultato: riga "result" con i chunk ordinati per score (similarità coseno, alto = pertinente).
+# Cartella vuota o senza documenti → "chunks": [] (non è un errore).
+python rag.py query --folder-id f1 --question "Perché la pompa si blocca quando fa freddo?" --top-k 3
+
+# Cerca i chunk più pertinenti a una domanda, solo nella cartella indicata
+# Risultato: riga "result" con i chunk ordinati per score (similarità coseno, alto = pertinente).
+# Cartella vuota o senza documenti → "chunks": [] (non è un errore).
+python rag.py query --folder-id f1 --question "Perché la pompa si blocca quando fa freddo?" --top-k 3
+
 # Avvia esperimento: similarità tra una domanda e alcune frasi
 python -m experiments.similarity
 python -m experiments.similarity "Ogni quanto devo pulire il filtro?"
@@ -71,7 +81,7 @@ python -m experiments.inspect_db
 python -m experiments.inspect_db --folder-id f1
 ```
 
-`query` e `delete` esistono ma non sono ancora implementati.
+`delete` esiste ma non è ancora implementato.
 
 ## Prove di errore
 

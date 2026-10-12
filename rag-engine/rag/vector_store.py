@@ -29,6 +29,46 @@ def save_document_chunks(
     return len(records)
 
 
+def search_chunks(
+    vector: list[float],
+    folder_id: str,
+    embedding_model: str,
+    top_k: int,
+) -> list[dict]:
+    db = lancedb.connect(config.VECTOR_DB_PATH)
+
+    if config.VECTOR_TABLE not in db.list_tables().tables:
+        return []
+
+    table = db.open_table(config.VECTOR_TABLE)
+    rows = (
+        table.search(vector)
+        .distance_type('cosine')
+        .where(
+            f'folder_id = {sql_string(folder_id)} '
+            f'AND embedding_model = {sql_string(embedding_model)}',
+            prefilter=True,
+        )
+        .limit(top_k)
+        .to_list()
+    )
+
+    return [to_result(row) for row in rows]
+
+
+def to_result(row: dict) -> dict:
+    return {
+        'document_id': row['document_id'],
+        'document_name': row['document_name'],
+        'page': row['page'],
+        'chunk_index': row['chunk_index'],
+        # LanceDB dà la distanza coseno (bassa = simile): la giriamo in
+        # similarità (alta = simile), come in experiments/similarity.py
+        'score': 1 - row['_distance'],
+        'text': row['text'],
+    }
+
+
 def to_record(
     chunk: dict,
     folder_id: str,
