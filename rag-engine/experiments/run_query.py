@@ -40,8 +40,8 @@ def readable_result(event: dict) -> None:
             print('Text', chunk['text'])
         return
   
-  print('Evento sconosciuto:', event)
-  return
+    print('Evento sconosciuto:', event)
+    return
 
 
 def run_query(command: list[str]) -> int:
