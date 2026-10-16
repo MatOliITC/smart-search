@@ -1,15 +1,16 @@
 # rag-engine
 
-Motore RAG in Python: estrazione testo, chunking, embeddings (e in seguito vector DB, ricerca e risposta).
+Motore RAG in Python: estrazione testo, chunking, embeddings, vector DB, ricerca e risposta con fonti.
 Tutti i comandi si lanciano dalla cartella `rag-engine`.
 
 ## Prerequisiti
 
 - Python 3.12
-- Ollama avviato (icona vicino all'orologio) con il modello di embedding scaricato:
+- Ollama avviato (icona vicino all'orologio) con il modello di embedding e quello di generazione scaricati:
 
 ```powershell
 ollama pull bge-m3
+ollama pull gemma3:4b
 ```
 
 ## Setup (solo la prima volta)
@@ -59,15 +60,20 @@ python rag.py index --file samples\pompa_di_calore.txt --folder-id f1 --document
 python -m experiments.run_index --file samples\pompa_di_calore.txt
 python -m experiments.run_index --file samples\tagliando_auto.txt --folder-id f2 --document-id d2 --document-name tagliando.txt
 
-# Cerca i chunk più pertinenti a una domanda, solo nella cartella indicata
-# Risultato: riga "result" con i chunk ordinati per score (similarità coseno, alto = pertinente).
-# Cartella vuota o senza documenti → "chunks": [] (non è un errore).
-python rag.py query --folder-id f1 --question "Perché la pompa si blocca quando fa freddo?" --top-k 3
+# Risponde a una domanda usando solo i documenti della cartella indicata
+# Cerca i --top-k chunk più pertinenti, li passa a gemma3:4b e restituisce la risposta con le fonti:
+#   {"type": "result", "question": "...", "answer": "... [1].", "sources": [{"number": 1, "document_id": "d1", "document_name": "pompa.txt", "page": 1}]}
+# Risposta non trovata (cartella vuota, oppure domanda fuori tema) → "answer": null, "sources": [] (non è un errore).
+# Su CPU la risposta può richiedere 10-30 secondi.
+python rag.py query --folder-id f1 --question "Cosa significa il codice E05?" --top-k 3
+python rag.py query --folder-id f1 --question "Come si cambia l'olio?" --top-k 3
 
-# Cerca i chunk più pertinenti a una domanda, solo nella cartella indicata
-# Risultato: riga "result" con i chunk ordinati per score (similarità coseno, alto = pertinente).
-# Cartella vuota o senza documenti → "chunks": [] (non è un errore).
-python rag.py query --folder-id f1 --question "Perché la pompa si blocca quando fa freddo?" --top-k 3
+# --debug aggiunge al result anche i chunk letti dal modello (con score e testo) e i messaggi inviati
+python rag.py query --folder-id f1 --question "Cosa significa il codice E05?" --debug
+
+# Fa la parte di Node: lancia rag.py query e stampa risposta e fonti in modo leggibile
+python -m experiments.run_query --question "Cosa significa il codice E05?" --folder-id f1 --top-k 3
+python -m experiments.run_query --question "Cosa significa il codice E05?" --folder-id f1 --top-k 3 --debug
 
 # Avvia esperimento: similarità tra una domanda e alcune frasi
 python -m experiments.similarity
@@ -144,4 +150,6 @@ la formattazione avviene a ogni salvataggio.
 
 ## Configurazione
 
-I parametri sono in `config.py`: dimensione e overlap dei chunk, indirizzo del server dei modelli, modello di embedding.
+I parametri sono in `config.py`: dimensione e overlap dei chunk, indirizzo del server dei modelli, modello di embedding, modello di generazione (`LLM_MODEL`), temperatura e lingua della risposta.
+
+Le regole date al modello (prompt di sistema) sono in `rag/prompt.py`.

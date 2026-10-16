@@ -18,6 +18,10 @@ def readable_result(event: dict) -> None:
         print('Progress:', '[searching]')
         return
 
+    if event['type'] == 'progress' and event['stage'] == 'generating':
+        print('Progress:', '[generating]')
+        return
+
     if event['type'] == 'error':
         print('Error:', f'[error {event["code"]}]: {event["message"]}')
         return
@@ -26,20 +30,27 @@ def readable_result(event: dict) -> None:
         print('Result:', event['type'])
         print('Question:', event['question'])
 
-        if not event['chunks']:
-            print('No chunks found for this result.')
-            return
+        if event['answer'] is None:
+            print('Answer: no answer found in the documents.')
+        else:
+            print('Answer:', event['answer'])
+            print('Sources:')
+            for source in event['sources']:
+                print(
+                    f'  [{source["number"]}] {source["document_name"]}, '
+                    f'page {source["page"]} ({source["document_id"]})'
+                )
 
-        for chunk in sorted(
-            event['chunks'], key=lambda x: x['score'], reverse=True
-        ):
-            print('Document id:', chunk['document_id'])
-            print('Document name:', chunk['document_name'])
-            print('Document page:', chunk['page'])
-            print('Score', chunk['score'])
-            print('Text', chunk['text'])
+        if 'chunks' in event:
+            print('\nChunks (debug):')
+            for position, chunk in enumerate(event['chunks'], start=1):
+                print(
+                    f'  [{position}] {chunk["document_name"]}, '
+                    f'page {chunk["page"]}, score {chunk["score"]:.3f}'
+                )
+                print('  ' + chunk['text'].replace('\n', '\n  '))
         return
-  
+
     print('Evento sconosciuto:', event)
     return
 
@@ -66,6 +77,7 @@ if __name__ == '__main__':
     parser.add_argument('--question', required=True)
     parser.add_argument('--folder-id', required=True)
     parser.add_argument('--top-k', type=int, default=5)
+    parser.add_argument('--debug', action='store_true')
 
     args = parser.parse_args()
 
@@ -80,6 +92,8 @@ if __name__ == '__main__':
         '--top-k',
         str(args.top_k),
     ]
+    if args.debug:
+        command.append('--debug')
 
     exit_code = run_query(command)
     print('exit code:', exit_code)

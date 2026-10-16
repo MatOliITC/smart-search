@@ -18,9 +18,10 @@ import traceback
 import config
 from errors import RagError
 from extraction.extractor import extract_pages
-from llm_client import embed
+from llm_client import embed, generate
 from rag.chunking import chunk_pages
 from rag.embeddings import embed_chunks
+from rag.prompt import NO_ANSWER, build_messages, extract_sources
 from rag.vector_store import save_document_chunks, search_chunks
 
 
@@ -127,7 +128,32 @@ def run_query(args: argparse.Namespace) -> int:
         args.top_k,
     )
 
-    emit('result', question=args.question, chunks=chunks)
+    if not chunks:
+        emit('result', question=args.question, answer=None, sources=[])
+        return 0
+
+    emit('progress', stage='generating')
+    messages = build_messages(args.question, chunks)
+    response = generate(messages)
+
+    if response.strip() == NO_ANSWER:
+        answer = None
+        sources = []
+    else:
+        answer = response
+        sources = extract_sources(answer, chunks)
+
+    result = {
+        'question': args.question,
+        'answer': answer,
+        'sources': sources,
+    }
+
+    if args.debug:
+        result['chunks'] = chunks
+        result['messages'] = messages
+
+    emit('result', **result)
     return 0
 
 

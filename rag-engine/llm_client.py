@@ -28,3 +28,27 @@ def embed(texts: list[str]) -> list[list[float]]:
 
     items = sorted(response.data, key=lambda item: item.index)
     return [item.embedding for item in items]
+
+
+def generate(messages: list[dict]) -> str:
+    try:
+        response = client.chat.completions.create(
+            model=config.LLM_MODEL,
+            messages=messages,
+            temperature=config.LLM_TEMPERATURE
+        )
+        
+    except APIConnectionError as error:
+        raise RagError(
+            'MODEL_SERVER_UNREACHABLE',
+            f'Server dei modelli non raggiungibile su {config.LLM_BASE_URL}',
+        ) from error
+        
+    except NotFoundError as error:
+        raise RagError(
+            'MODEL_NOT_FOUND',
+            f"Modello '{config.LLM_MODEL}' non trovato sul server",
+        ) from error
+    
+    return response.choices[0].message.content or ""
+
