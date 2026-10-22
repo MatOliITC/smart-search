@@ -20,7 +20,7 @@ def save_document_chunks(
     ]
 
     db = lancedb.connect(config.VECTOR_DB_PATH)
-    
+
     if config.VECTOR_TABLE in db.list_tables().tables:
         table = db.open_table(config.VECTOR_TABLE)
         table.delete(f'document_id = {sql_string(document_id)}')
@@ -57,30 +57,28 @@ def search_chunks(
 
     return [to_result(row) for row in rows]
 
-def delete_document_chunks(document_id:str) -> int:
+
+def delete_document_chunks(document_id: str) -> int:
     db = lancedb.connect(config.VECTOR_DB_PATH)
 
     if config.VECTOR_TABLE not in db.list_tables().tables:
         return NO_CHUNKS_DELETED
-    
+
     table = db.open_table(config.VECTOR_TABLE)
-    deleted = table.delete(
-        f'document_id = {sql_string(document_id)}'
-    )
+    deleted = table.delete(f'document_id = {sql_string(document_id)}')
     deleted_count = deleted.num_deleted_rows
 
     return deleted_count
 
-def delete_folder_chunks(folder_id:str) -> int:
+
+def delete_folder_chunks(folder_id: str) -> int:
     db = lancedb.connect(config.VECTOR_DB_PATH)
 
     if config.VECTOR_TABLE not in db.list_tables().tables:
         return NO_CHUNKS_DELETED
 
     table = db.open_table(config.VECTOR_TABLE)
-    deleted = table.delete(
-        f'folder_id = {sql_string(folder_id)}'
-    )
+    deleted = table.delete(f'folder_id = {sql_string(folder_id)}')
     deleted_count = deleted.num_deleted_rows
     return deleted_count
 

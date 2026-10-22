@@ -23,7 +23,7 @@ SYSTEM_PROMPT = (
 )
 
 
-def format_chunk(position:int, chunk: dict) -> str:
+def format_chunk(position: int, chunk: dict) -> str:
     return (
         f'=== SOURCE [{position}] ({chunk["document_name"]}, '
         f'page {chunk["page"]}) ===\n'
@@ -32,25 +32,27 @@ def format_chunk(position:int, chunk: dict) -> str:
     )
 
 
-def build_messages(question:str, chunks: list[dict]) -> list[dict]:
+def build_messages(question: str, chunks: list[dict]) -> list[dict]:
     # Vengono messi dei segnaposto numerati nelle corrispondenze delle frasi dei chunk.
     # es. passiamo una lista di chunk tra i quali: {Postion:[1], file: 'document.pdf', page: 2, text: 'Il mio testo del chunk nel quale il modello farà ricerca}
     # il modello userà i segnaposto per contrassegnare le corrispondenze trovate in maniera che potremmo estrarne i sources"
-    formatted_chunks = [format_chunk(i + 1, chunk) for i, chunk in enumerate(chunks)]
+    formatted_chunks = [
+        format_chunk(i + 1, chunk) for i, chunk in enumerate(chunks)
+    ]
     context = '\n\n'.join(formatted_chunks)
     messages = [
-      {"role":"system", "content":SYSTEM_PROMPT},
-      {"role":"user", "content":f"{context}\n\nQuestion: {question}"}
+        {'role': 'system', 'content': SYSTEM_PROMPT},
+        {'role': 'user', 'content': f'{context}\n\nQuestion: {question}'},
     ]
 
     return messages
 
-def extract_sources(answer:str, chunks: list[dict]) -> list[dict]:
+
+def extract_sources(answer: str, chunks: list[dict]) -> list[dict]:
     numbers = re.findall(r'\[(\d+)\]', answer)
     seen = set()
     unique_numbers = []
     sources = []
-
 
     for text_num in numbers:
         num = int(text_num)
@@ -61,10 +63,12 @@ def extract_sources(answer:str, chunks: list[dict]) -> list[dict]:
     for num in unique_numbers:
         if 1 <= num <= len(chunks):
             chunk = chunks[num - 1]
-            sources.append({
-                'number': num,
-                'document_id': chunk['document_id'],
-                'document_name': chunk['document_name'],
-                'page': chunk['page'],
-            })
+            sources.append(
+                {
+                    'number': num,
+                    'document_id': chunk['document_id'],
+                    'document_name': chunk['document_name'],
+                    'page': chunk['page'],
+                }
+            )
     return sources

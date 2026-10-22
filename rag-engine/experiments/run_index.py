@@ -26,11 +26,10 @@ def describe(event: dict) -> str:
         return f'Errore {event["code"]}: {event["message"]}'
     return f'Evento sconosciuto: {event}'
 
+
 def run_index(command: list[str]) -> int:
     process = subprocess.Popen(
-        command,
-        stdout=subprocess.PIPE,
-        encoding="utf-8"
+        command, stdout=subprocess.PIPE, encoding='utf-8'
     )
 
     for line in process.stdout:
@@ -40,6 +39,7 @@ def run_index(command: list[str]) -> int:
 
     process.wait()
     return process.returncode
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

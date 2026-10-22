@@ -19,7 +19,7 @@ def embed(texts: list[str]) -> list[list[float]]:
             'MODEL_SERVER_UNREACHABLE',
             f'Server dei modelli non raggiungibile su {config.LLM_BASE_URL}',
         ) from error
-        
+
     except NotFoundError as error:
         raise RagError(
             'MODEL_NOT_FOUND',
@@ -35,20 +35,19 @@ def generate(messages: list[dict]) -> str:
         response = client.chat.completions.create(
             model=config.LLM_MODEL,
             messages=messages,
-            temperature=config.LLM_TEMPERATURE
+            temperature=config.LLM_TEMPERATURE,
         )
-        
+
     except APIConnectionError as error:
         raise RagError(
             'MODEL_SERVER_UNREACHABLE',
             f'Server dei modelli non raggiungibile su {config.LLM_BASE_URL}',
         ) from error
-        
+
     except NotFoundError as error:
         raise RagError(
             'MODEL_NOT_FOUND',
             f"Modello '{config.LLM_MODEL}' non trovato sul server",
         ) from error
-    
-    return response.choices[0].message.content or ""
 
+    return response.choices[0].message.content or ''

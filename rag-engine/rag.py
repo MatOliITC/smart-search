@@ -22,10 +22,16 @@ from llm_client import embed, generate
 from rag.chunking import chunk_pages
 from rag.embeddings import embed_chunks
 from rag.prompt import NO_ANSWER, build_messages, extract_sources
-from rag.vector_store import save_document_chunks, search_chunks, delete_document_chunks, delete_folder_chunks
+from rag.vector_store import (
+    delete_document_chunks,
+    delete_folder_chunks,
+    save_document_chunks,
+    search_chunks,
+)
 
 EXIT = 0
 EXIT_WITH_ERROR = 1
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -158,20 +164,21 @@ def run_query(args: argparse.Namespace) -> int:
     emit('result', **result)
     return EXIT
 
-def run_delete(args:argparse.Namespace) -> int:
+
+def run_delete(args: argparse.Namespace) -> int:
     if args.document_id:
-        emit('progress', stage="deleting_documents")
+        emit('progress', stage='deleting_documents')
         deleted_chunks = delete_document_chunks(args.document_id)
 
     else:
-        emit('progress', stage="deleting_folders")
+        emit('progress', stage='deleting_folders')
         deleted_chunks = delete_folder_chunks(args.folder_id)
-    
+
     emit(
         'result',
         document_id=args.document_id,
         folder_id=args.folder_id,
-        deleted_chunks=deleted_chunks
+        deleted_chunks=deleted_chunks,
     )
 
     return EXIT
