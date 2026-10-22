@@ -138,6 +138,17 @@ python
 >>> exit()
 ```
 
+## Test (pytest)
+
+I test sono in `tests/` (file `test_*.py`, funzioni `test_*`) e coprono solo le parti
+deterministiche: non usano Ollama né il vector DB. Configurazione in `pyproject.toml`.
+
+```powershell
+pytest                        # tutti i test
+pytest -v                     # un test per riga, con il nome
+pytest tests/test_prompt.py   # solo un file
+```
+
 ## Lint e formattazione (Ruff)
 
 Configurazione in `pyproject.toml`: righe da 80 caratteri, virgolette singole,
