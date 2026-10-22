@@ -22,8 +22,10 @@ from llm_client import embed, generate
 from rag.chunking import chunk_pages
 from rag.embeddings import embed_chunks
 from rag.prompt import NO_ANSWER, build_messages, extract_sources
-from rag.vector_store import save_document_chunks, search_chunks
+from rag.vector_store import save_document_chunks, search_chunks, delete_document_chunks, delete_folder_chunks
 
+EXIT = 0
+EXIT_WITH_ERROR = 1
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -130,7 +132,7 @@ def run_query(args: argparse.Namespace) -> int:
 
     if not chunks:
         emit('result', question=args.question, answer=None, sources=[])
-        return 0
+        return EXIT
 
     emit('progress', stage='generating')
     messages = build_messages(args.question, chunks)
@@ -154,7 +156,25 @@ def run_query(args: argparse.Namespace) -> int:
         result['messages'] = messages
 
     emit('result', **result)
-    return 0
+    return EXIT
+
+def run_delete(args:argparse.Namespace) -> int:
+    if args.document_id:
+        emit('progress', stage="deleting_documents")
+        deleted_chunks = delete_document_chunks(args.document_id)
+
+    else:
+        emit('progress', stage="deleting_folders")
+        deleted_chunks = delete_folder_chunks(args.folder_id)
+    
+    emit(
+        'result',
+        document_id=args.document_id,
+        folder_id=args.folder_id,
+        deleted_chunks=deleted_chunks
+    )
+
+    return EXIT
 
 
 def main() -> int:
@@ -169,20 +189,22 @@ def main() -> int:
             return run_index(args)
         if args.command == 'query':
             return run_query(args)
+        if args.command == 'delete':
+            return run_delete(args)
 
         emit(
             'error',
             code='NOT_IMPLEMENTED',
             message=f"Comando '{args.command}' non ancora implementato",
         )
-        return 1
+        return EXIT_WITH_ERROR
     except RagError as error:
         emit('error', code=error.code, message=error.message)
-        return 1
+        return EXIT_WITH_ERROR
     except Exception as error:
         traceback.print_exc()
         emit('error', code='INTERNAL_ERROR', message=str(error))
-        return 1
+        return EXIT_WITH_ERROR
 
 
 if __name__ == '__main__':

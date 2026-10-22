@@ -58,7 +58,7 @@ python rag.py index --file samples\pompa_di_calore.txt --folder-id f1 --document
 # Fa la parte di Node: lancia rag.py index, legge le righe JSON e le traduce in testo
 # (--folder-id, --document-id e --document-name hanno valori di default: f1, d1, documento.txt)
 python -m experiments.run_index --file samples\pompa_di_calore.txt
-python -m experiments.run_index --file samples\tagliando_auto.txt --folder-id f2 --document-id d2 --document-name tagliando.txt
+python -m experiments.run_index --file samples\tagliando_auto.txt --folder-id f2 --document-id d2 --document-name tagliando_auto.txt
 
 # Risponde a una domanda usando solo i documenti della cartella indicata
 # Cerca i --top-k chunk più pertinenti, li passa a gemma3:4b e restituisce la risposta con le fonti:
@@ -75,6 +75,14 @@ python rag.py query --folder-id f1 --question "Cosa significa il codice E05?" --
 python -m experiments.run_query --question "Cosa significa il codice E05?" --folder-id f1 --top-k 3
 python -m experiments.run_query --question "Cosa significa il codice E05?" --folder-id f1 --top-k 3 --debug
 
+# Rimuove dal vector DB i chunk di un documento oppure di un'intera cartella (uno dei due argomenti)
+# Il result dice quanti chunk sono stati cancellati:
+#   {"type": "result", "document_id": "d2", "folder_id": null, "deleted_chunks": 1}
+# Un id che non esiste (o il DB ancora vuoto) non è un errore: "deleted_chunks": 0, exit code 0.
+# Attenzione: cancella davvero. Per riavere i documenti di prova, reindicizzarli con run_index (serve Ollama acceso).
+python rag.py delete --document-id d2
+python rag.py delete --folder-id f1
+
 # Avvia esperimento: similarità tra una domanda e alcune frasi
 python -m experiments.similarity
 python -m experiments.similarity "Ogni quanto devo pulire il filtro?"
@@ -86,8 +94,6 @@ python -m experiments.chunk_stats --file samples\pompa_di_calore.txt
 python -m experiments.inspect_db
 python -m experiments.inspect_db --folder-id f1
 ```
-
-`delete` esiste ma non è ancora implementato.
 
 ## Prove di errore
 
@@ -145,8 +151,11 @@ ruff check . --fix
 ruff format .
 ```
 
-In VS Code, con l'estensione Ruff e la cartella `smart-search` aperta,
-la formattazione avviene a ogni salvataggio.
+In VS Code, con l'estensione Ruff (`charliermarsh.ruff`) installata e la
+cartella `smart-search` aperta come cartella di lavoro (File → Open Folder),
+a ogni salvataggio il file viene formattato e gli import riordinati
+(impostazioni in `smart-search/.vscode/settings.json`). Il salvataggio non
+applica le altre correzioni di `ruff check` (es. commenti oltre 80 colonne).
 
 ## Configurazione
 
