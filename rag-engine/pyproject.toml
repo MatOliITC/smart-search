@@ -14,3 +14,8 @@ select = ["E", "F", "W", "I", "T20"]
 # rag.py parla con Node via stdout; gli esperimenti stampano per mestiere.
 "rag.py" = ["T20"]
 "experiments/**" = ["T20"]
+
+[tool.pytest.ini_options]
+# i test importano i moduli partendo da rag-engine (es. from rag.prompt import ...)
+pythonpath = ["."]
+testpaths = ["tests"]
