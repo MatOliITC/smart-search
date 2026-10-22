@@ -24,13 +24,18 @@ SYSTEM_PROMPT = (
 
 
 def format_chunk(position:int, chunk: dict) -> str:
-    return f"Position:[{position}], file: {chunk['document_name']}, page: {chunk['page']}\nText: {chunk['text']}"
+    return (
+        f'=== SOURCE [{position}] ({chunk["document_name"]}, '
+        f'page {chunk["page"]}) ===\n'
+        f'{chunk["text"]}\n'
+        f'=== END OF SOURCE [{position}] ==='
+    )
 
 
 def build_messages(question:str, chunks: list[dict]) -> list[dict]:
     # Vengono messi dei segnaposto numerati nelle corrispondenze delle frasi dei chunk.
     # es. passiamo una lista di chunk tra i quali: {Postion:[1], file: 'document.pdf', page: 2, text: 'Il mio testo del chunk nel quale il modello farà ricerca}
-    # il modello userà i segnaposto per contrassegnare le corrispondenze trovate "[1] il mio testo del chunk [1] nel quale il modello farà ricerca"
+    # il modello userà i segnaposto per contrassegnare le corrispondenze trovate in maniera che potremmo estrarne i sources"
     formatted_chunks = [format_chunk(i + 1, chunk) for i, chunk in enumerate(chunks)]
     context = '\n\n'.join(formatted_chunks)
     messages = [
@@ -45,6 +50,7 @@ def extract_sources(answer:str, chunks: list[dict]) -> list[dict]:
     seen = set()
     unique_numbers = []
     sources = []
+
 
     for text_num in numbers:
         num = int(text_num)
