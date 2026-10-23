@@ -20,6 +20,9 @@ def chunk_pages(
 ) -> list[dict]:
     chunks = []
     for page in pages:
+        if not page['text'].strip():
+            continue
+
         for text in chunk_text(page['text'], chunk_size, chunk_overlap):
             chunks.append(
                 {'chunk_index': len(chunks), 'page': page['page'], 'text': text}
