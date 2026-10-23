@@ -143,10 +143,13 @@ python
 I test sono in `tests/` (file `test_*.py`, funzioni `test_*`) e coprono solo le parti
 deterministiche: non usano Ollama né il vector DB. Configurazione in `pyproject.toml`.
 
+File attuali: `test_prompt.py` (`extract_sources`) e `test_chunking.py` (`chunk_pages`).
+
 ```powershell
-pytest                        # tutti i test
-pytest -v                     # un test per riga, con il nome
-pytest tests/test_prompt.py   # solo un file
+pytest                          # tutti i test
+pytest -v                       # un test per riga, con il nome
+pytest tests/test_chunking.py   # solo un file
+pytest -vv                      # differenze complete quando un test fallisce
 ```
 
 ## Lint e formattazione (Ruff)
