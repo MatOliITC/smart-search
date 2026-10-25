@@ -21,7 +21,7 @@ from errors import RagError
 from extraction.extractor import extract_pages
 from llm_client import embed, generate
 from rag.chunking import chunk_pages
-from rag.embeddings import embed_chunks
+from rag.embeddings import embed_batches
 from rag.prompt import NO_ANSWER, build_messages, extract_sources
 from rag.vector_store import (
     delete_document_chunks,
@@ -95,38 +95,40 @@ def print_event(event: dict) -> None:
     print(json.dumps(event, ensure_ascii=False), flush=True)
 
 
-def run_index(args: argparse.Namespace) -> int:
-    emit('progress', stage='extracting')
-    pages = extract_pages(args.file)
+def run_index(file, folder_id, document_id, document_name) -> Iterator[dict]:
+    yield {'type': 'progress', 'stage': 'extracting'}
+    pages = extract_pages(file)
 
-    emit('progress', stage='chunking', pages=len(pages))
+    yield {'type': 'progress', 'stage': 'chunking', 'pages': len(pages)}
     chunks = chunk_pages(pages, config.CHUNK_SIZE, config.CHUNK_OVERLAP)
 
-    chunks = embed_chunks(
-        chunks,
-        config.EMBEDDING_BATCH_SIZE,
-        on_progress=lambda done, total: emit(
-            'progress', stage='embedding', done=done, total=total
-        ),
-    )
+    embedding = []
+    for embed_batch in embed_batches(chunks, config.EMBEDDING_BATCH_SIZE):
+        embedding.extend(embed_batch)
+        yield {
+            'type': 'progress',
+            'stage': 'embedding',
+            'done': len(embedding),
+            'total': len(chunks),
+        }
 
-    emit('progress', stage='saving', chunks=len(chunks))
+    yield {'type': 'progress', 'stage': 'saving', 'chunks': len(embedding)}
+
     saved = save_document_chunks(
-        chunks,
-        args.folder_id,
-        args.document_id,
-        args.document_name,
+        embedding,
+        folder_id,
+        document_id,
+        document_name,
         config.EMBEDDING_MODEL,
     )
 
-    emit(
-        'result',
-        document_id=args.document_id,
-        pages=len(pages),
-        chunks=saved,
-        embedding_model=config.EMBEDDING_MODEL,
-    )
-    return 0
+    yield {
+        'type': 'result',
+        'document_id': document_id,
+        'pages': len(pages),
+        'chunks': saved,
+        'embedding_model': config.EMBEDDING_MODEL,
+    }
 
 
 def run_query(args: argparse.Namespace) -> int:
@@ -198,7 +200,12 @@ def main() -> int:
 
     try:
         if args.command == 'index':
-            return run_index(args)
+            # return run_index(args)
+            for event in run_index(
+                args.file, args.folder_id, args.document_id, args.document_name
+            ):
+                print_event(event)
+            return EXIT
         if args.command == 'query':
             return run_query(args)
         if args.command == 'delete':
