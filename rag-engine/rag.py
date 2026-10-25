@@ -131,24 +131,32 @@ def run_index(file, folder_id, document_id, document_name) -> Iterator[dict]:
     }
 
 
-def run_query(args: argparse.Namespace) -> int:
-    emit('progress', stage='embedding_question')
-    question_vector = embed([args.question])[0]
+def run_query(folder_id, top_k, question, debug) -> Iterator[dict]:
 
-    emit('progress', stage='searching')
+    yield {'type': 'progress', 'stage': 'embedding_question'}
+
+    question_vector = embed([question])[0]
+
+    yield {'type': 'progress', 'stage': 'searching'}
     chunks = search_chunks(
         question_vector,
-        args.folder_id,
+        folder_id,
         config.EMBEDDING_MODEL,
-        args.top_k,
+        top_k,
     )
 
     if not chunks:
-        emit('result', question=args.question, answer=None, sources=[])
-        return EXIT
+        yield {
+            'type': 'result',
+            'question': question,
+            'answer': None,
+            'sources': [],
+        }
+        return
 
-    emit('progress', stage='generating')
-    messages = build_messages(args.question, chunks)
+    yield {'type': 'progress', 'stage': 'generating'}
+
+    messages = build_messages(question, chunks)
     response = generate(messages)
 
     if response.strip() == NO_ANSWER:
@@ -159,17 +167,16 @@ def run_query(args: argparse.Namespace) -> int:
         sources = extract_sources(answer, chunks)
 
     result = {
-        'question': args.question,
+        'question': question,
         'answer': answer,
         'sources': sources,
     }
 
-    if args.debug:
+    if debug:
         result['chunks'] = chunks
         result['messages'] = messages
 
-    emit('result', **result)
-    return EXIT
+    yield {'type': 'result', 'result': {**result}}
 
 
 def run_delete(
@@ -200,14 +207,17 @@ def main() -> int:
 
     try:
         if args.command == 'index':
-            # return run_index(args)
             for event in run_index(
                 args.file, args.folder_id, args.document_id, args.document_name
             ):
                 print_event(event)
             return EXIT
         if args.command == 'query':
-            return run_query(args)
+            for event in run_query(
+                args.folder_id, args.top_k, args.question, args.debug
+            ):
+                print_event(event)
+            return EXIT
         if args.command == 'delete':
             for event in run_delete(args.document_id, args.folder_id):
                 print_event(event)
