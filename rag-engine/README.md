@@ -95,6 +95,47 @@ python -m experiments.inspect_db
 python -m experiments.inspect_db --folder-id f1
 ```
 
+## Server HTTP (FastAPI)
+
+Lo stesso motore è raggiungibile anche via HTTP, ed è così che lo userà Node.
+I comandi sono gli stessi del CLI: `rag.py` (terminale) e `server.py` (HTTP)
+chiamano le stesse funzioni di `commands.py`.
+
+```powershell
+# Avvia il server (solo su questo PC). --reload lo riavvia a ogni salvataggio, come nodemon
+uvicorn server:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Rotte (tutte `POST`, body JSON):
+
+| Rotta | Body | Note |
+|---|---|---|
+| `/index` | `file`, `folder_id`, `document_id`, `document_name` | tutti obbligatori |
+| `/query` | `folder_id`, `question`, `top_k` (default 5), `debug` (default false) | |
+| `/delete` | `document_id` **oppure** `folder_id` | esattamente uno dei due |
+
+La risposta è in streaming, in formato NDJSON (`Content-Type: application/x-ndjson`):
+una riga JSON per evento, con gli stessi eventi del CLI (`progress`, `result`, `error`).
+
+- **Body non valido** (campo mancante, `/delete` con nessuno o entrambi gli id) → status **422**,
+  prima che lo stream parta.
+- **Errore del motore** (file inesistente, Ollama spento, ...) → status **200**, e l'ultima riga
+  dello stream è `{"type": "error", "code": ..., "message": ...}`: lo status era già partito.
+
+Per vedere gli eventi arrivare uno alla volta serve `curl.exe -N`
+(le `\"` servono solo a PowerShell). La pagina http://127.0.0.1:8000/docs
+è comoda per provare le rotte, ma aspetta la risposta completa e mostra
+"can't parse JSON" perché le righe sono più di un JSON: è normale.
+
+```powershell
+curl.exe -N -X POST http://127.0.0.1:8000/query -H "Content-Type: application/json" -d '{\"folder_id\": \"f1\", \"question\": \"Cosa significa il codice E05?\", \"top_k\": 3}'
+curl.exe -N -X POST http://127.0.0.1:8000/index -H "Content-Type: application/json" -d '{\"file\": \"samples/pompa_di_calore.txt\", \"folder_id\": \"f1\", \"document_id\": \"d1\", \"document_name\": \"pompa.txt\"}'
+curl.exe -N -X POST http://127.0.0.1:8000/delete -H "Content-Type: application/json" -d '{\"document_id\": \"non-esiste\"}'
+
+# -i mostra anche status e header (es. 422 con body sbagliato)
+curl.exe -i -X POST http://127.0.0.1:8000/delete -H "Content-Type: application/json" -d '{}'
+```
+
 ## Prove di errore
 
 ```powershell
@@ -143,7 +184,8 @@ python
 I test sono in `tests/` (file `test_*.py`, funzioni `test_*`) e coprono solo le parti
 deterministiche: non usano Ollama né il vector DB. Configurazione in `pyproject.toml`.
 
-File attuali: `test_prompt.py` (`extract_sources`) e `test_chunking.py` (`chunk_pages`).
+File attuali: `test_prompt.py` (`extract_sources`, `format_chunk`, `build_messages`),
+`test_chunking.py` (`chunk_pages`) e `test_vector_store.py` (`sql_string`).
 
 ```powershell
 pytest                          # tutti i test
@@ -176,3 +218,10 @@ applica le altre correzioni di `ruff check` (es. commenti oltre 80 colonne).
 I parametri sono in `config.py`: dimensione e overlap dei chunk, indirizzo del server dei modelli, modello di embedding, modello di generazione (`LLM_MODEL`), temperatura e lingua della risposta.
 
 Le regole date al modello (prompt di sistema) sono in `rag/prompt.py`.
+
+## Dove sta cosa
+
+- `commands.py`: i tre comandi (`run_index`, `run_query`, `run_delete`) come generatori di eventi, più `with_errors`, che trasforma le eccezioni in eventi `error`.
+- `rag.py`: ingresso da terminale (argomenti con argparse, eventi stampati su stdout, exit code).
+- `server.py`: ingresso HTTP (body validato da FastAPI, eventi mandati in streaming).
+- `rag/`, `extraction/`, `llm_client.py`: il motore vero e proprio (chunking, embeddings, vector DB, prompt, modelli).
