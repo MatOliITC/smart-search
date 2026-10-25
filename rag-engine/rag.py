@@ -176,7 +176,7 @@ def run_query(folder_id, top_k, question, debug) -> Iterator[dict]:
         result['chunks'] = chunks
         result['messages'] = messages
 
-    yield {'type': 'result', 'result': {**result}}
+    yield {'type': 'result', **result}
 
 
 def run_delete(
