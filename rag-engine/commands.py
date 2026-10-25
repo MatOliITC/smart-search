@@ -1,6 +1,8 @@
+import traceback
 from collections.abc import Iterator
 
 import config
+from errors import RagError
 from extraction.extractor import extract_pages
 from llm_client import embed, generate
 from rag.chunking import chunk_pages
@@ -115,3 +117,14 @@ def run_delete(
         'folder_id': folder_id,
         'deleted_chunks': deleted_chunks,
     }
+
+
+def with_errors(events: Iterator[dict]) -> Iterator[dict]:
+    try:
+        for event in events:
+            yield event
+    except RagError as error:
+        yield {'type': 'error', 'code': error.code, 'message': error.message}
+    except Exception as error:
+        traceback.print_exc()
+        yield {'type': 'error', 'code': 'INTERNAL_ERROR', 'message': str(error)}

@@ -13,10 +13,8 @@ Exit code 0 = ok, 1 = errore.
 import argparse
 import json
 import sys
-import traceback
 
-from commands import run_delete, run_index, run_query
-from errors import RagError
+from commands import run_delete, run_index, run_query, with_errors
 
 EXIT = 0
 EXIT_WITH_ERROR = 1
@@ -84,25 +82,19 @@ def main() -> int:
     sys.stderr.reconfigure(encoding='utf-8')
 
     args = build_parser().parse_args()
+    exit_code = EXIT
 
-    try:
-        if args.command == 'index':
-            for event in run_index(
-                args.file, args.folder_id, args.document_id, args.document_name
-            ):
-                print_event(event)
-            return EXIT
-        if args.command == 'query':
-            for event in run_query(
-                args.folder_id, args.top_k, args.question, args.debug
-            ):
-                print_event(event)
-            return EXIT
-        if args.command == 'delete':
-            for event in run_delete(args.document_id, args.folder_id):
-                print_event(event)
-            return EXIT
-
+    if args.command == 'index':
+        events = run_index(
+            args.file, args.folder_id, args.document_id, args.document_name
+        )
+    elif args.command == 'query':
+        events = run_query(
+            args.folder_id, args.top_k, args.question, args.debug
+        )
+    elif args.command == 'delete':
+        events = run_delete(args.document_id, args.folder_id)
+    else:
         print_event(
             {
                 'type': 'error',
@@ -111,17 +103,13 @@ def main() -> int:
             }
         )
         return EXIT_WITH_ERROR
-    except RagError as error:
-        print_event(
-            {'type': 'error', 'code': error.code, 'message': error.message}
-        )
-        return EXIT_WITH_ERROR
-    except Exception as error:
-        traceback.print_exc()
-        print_event(
-            {'type': 'error', 'code': 'INTERNAL_ERROR', 'message': str(error)}
-        )
-        return EXIT_WITH_ERROR
+
+    for event in with_errors(events):
+        print_event(event)
+        if event['type'] == 'error':
+            exit_code = 1
+
+    return exit_code
 
 
 if __name__ == '__main__':

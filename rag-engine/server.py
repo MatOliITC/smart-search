@@ -1,10 +1,3 @@
-# 1. Import
-#    - json
-#    - Iterator (collections.abc)
-#    - FastAPI (da fastapi), StreamingResponse (da fastapi.responses)
-#    - BaseModel (da pydantic: arriva installato insieme a FastAPI)
-#    - run_delete (da commands)
-
 import json
 from collections.abc import Iterator
 
@@ -12,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from commands import run_delete
+from commands import run_delete, with_errors
 
 app = FastAPI()
 
@@ -34,5 +27,5 @@ def delete_item(body: DeleteBody):
     deleted_item = run_delete(document_id, folder_id)
 
     return StreamingResponse(
-        to_ndjson(deleted_item), media_type='application/x-ndjson'
+        to_ndjson(with_errors(deleted_item)), media_type='application/x-ndjson'
     )
