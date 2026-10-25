@@ -14,6 +14,7 @@ import argparse
 import json
 import sys
 import traceback
+from collections.abc import Iterator
 
 import config
 from errors import RagError
@@ -87,6 +88,10 @@ def build_parser() -> argparse.ArgumentParser:
 
 def emit(event_type: str, **data) -> None:
     event = {'type': event_type, **data}
+    print(json.dumps(event, ensure_ascii=False), flush=True)
+
+
+def print_event(event: dict) -> None:
     print(json.dumps(event, ensure_ascii=False), flush=True)
 
 
@@ -165,23 +170,23 @@ def run_query(args: argparse.Namespace) -> int:
     return EXIT
 
 
-def run_delete(args: argparse.Namespace) -> int:
-    if args.document_id:
-        emit('progress', stage='deleting_documents')
-        deleted_chunks = delete_document_chunks(args.document_id)
+def run_delete(
+    document_id: str | None, folder_id: str | None
+) -> Iterator[dict]:
+    if document_id:
+        yield {'type': 'progress', 'stage': 'deleting_documents'}
+        deleted_chunks = delete_document_chunks(document_id)
 
     else:
-        emit('progress', stage='deleting_folders')
-        deleted_chunks = delete_folder_chunks(args.folder_id)
+        yield {'type': 'progress', 'stage': 'deleting_folders'}
+        deleted_chunks = delete_folder_chunks(folder_id)
 
-    emit(
-        'result',
-        document_id=args.document_id,
-        folder_id=args.folder_id,
-        deleted_chunks=deleted_chunks,
-    )
-
-    return EXIT
+    yield {
+        'type': 'result',
+        'document_id': document_id,
+        'folder_id': folder_id,
+        'deleted_chunks': deleted_chunks,
+    }
 
 
 def main() -> int:
@@ -197,7 +202,9 @@ def main() -> int:
         if args.command == 'query':
             return run_query(args)
         if args.command == 'delete':
-            return run_delete(args)
+            for event in run_delete(args.document_id, args.folder_id):
+                print_event(event)
+            return EXIT
 
         emit(
             'error',
