@@ -10,7 +10,8 @@ def embed_batches(
     for start in range(0, len(chunks), batch_size):
         # es. start = 0, batch = 2, i primi due chunks [0,1]
         batch = chunks[start : start + batch_size]
-        # calcola gli embed tramite ollama per ognuno dei chunks nel batch passando il text
+        # calcola gli embed tramite ollama per ognuno dei chunks nel batch
+        # passando il text
         vectors = embed([chunk['text'] for chunk in batch])
 
         embedded = []
@@ -20,5 +21,5 @@ def embed_batches(
         for chunk, vector in zip(batch, vectors):
             embedded.append({**chunk, 'embedding': vector})
 
-        # restituisci gli embedded
+        # consegna a chi chiama i chunk di questo batch, poi passa al successivo
         yield embedded

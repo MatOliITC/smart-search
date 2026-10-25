@@ -113,7 +113,8 @@ def test_build_messages_returned_content():
                 'Lorem ipsum dolor sit amet consectetur.\n'
                 '=== END OF SOURCE [2] ===\n\n'
                 '=== SOURCE [3] (pompa_di_calore.txt, page 29) ===\n'
-                'Lorem ipsum dolor sit amet consectetur.\n=== END OF SOURCE [3] ===\n\n'
+                'Lorem ipsum dolor sit amet consectetur.\n'
+                '=== END OF SOURCE [3] ===\n\n'
                 'Question: This is my question'
             ),
         },

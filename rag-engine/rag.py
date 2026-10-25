@@ -1,8 +1,9 @@
-"""Punto d'ingresso del motore RAG.
+"""Ingresso da terminale del motore RAG (l'ingresso HTTP è server.py).
 
-Node lo avvia come comando da terminale, ad esempio:
-    python rag.py index --file C:/docs/manuale.txt --folder-id <uuid> --document-id <uuid> --document-name manuale.txt
-    python rag.py query --folder-id <uuid> --question "Perché la pompa va in blocco?"
+Esempi:
+    python rag.py index --file C:/docs/manuale.txt --folder-id <uuid>
+        --document-id <uuid> --document-name manuale.txt
+    python rag.py query --folder-id <uuid> --question "Perché va in blocco?"
     python rag.py delete --document-id <uuid>
 
 Protocollo: su stdout solo righe JSON, una per evento, con "type" uguale a
@@ -23,7 +24,7 @@ EXIT_WITH_ERROR = 1
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog='rag.py',
-        description='Motore RAG locale: indicizza documenti e risponde a domande.',
+        description='Motore RAG locale: indicizza documenti e risponde.',
     )
     commands = parser.add_subparsers(dest='command', required=True)
 
@@ -107,7 +108,7 @@ def main() -> int:
     for event in with_errors(events):
         print_event(event)
         if event['type'] == 'error':
-            exit_code = 1
+            exit_code = EXIT_WITH_ERROR
 
     return exit_code
 

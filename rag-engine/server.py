@@ -1,3 +1,12 @@
+"""Ingresso HTTP del motore RAG (l'ingresso da terminale è rag.py).
+
+Avvio: uvicorn server:app --host 127.0.0.1 --port 8000
+
+Ogni rotta risponde in streaming (NDJSON): una riga JSON per evento, con gli
+stessi eventi del CLI. Gli errori del motore arrivano come evento "error"
+nello stream (lo status 200 è già partito); un body non valido riceve 422.
+"""
+
 import json
 from collections.abc import Iterator
 
@@ -29,9 +38,15 @@ class QueryBody(BaseModel):
     debug: bool = False
 
 
-def to_ndjson(events) -> Iterator[str]:
+def to_ndjson(events: Iterator[dict]) -> Iterator[str]:
     for event in events:
         yield json.dumps(event, ensure_ascii=False) + '\n'
+
+
+def stream_events(events: Iterator[dict]) -> StreamingResponse:
+    return StreamingResponse(
+        to_ndjson(with_errors(events)), media_type='application/x-ndjson'
+    )
 
 
 @app.post('/delete')
@@ -46,39 +61,21 @@ def delete_item(body: DeleteBody):
 
     if document_id and folder_id:
         raise HTTPException(
-            status_code=422, detail='You could pass one argument per time'
+            status_code=422, detail='Pass only one of document_id or folder_id'
         )
 
-    deleted_item = run_delete(document_id, folder_id)
-
-    return StreamingResponse(
-        to_ndjson(with_errors(deleted_item)), media_type='application/x-ndjson'
-    )
+    return stream_events(run_delete(document_id, folder_id))
 
 
 @app.post('/index')
 def index_item(body: IndexBody):
-    file = body.file
-    document_id = body.document_id
-    folder_id = body.folder_id
-    document_name = body.document_name
-
-    indexed_item = run_index(file, folder_id, document_id, document_name)
-
-    return StreamingResponse(
-        to_ndjson(with_errors(indexed_item)), media_type='application/x-ndjson'
+    events = run_index(
+        body.file, body.folder_id, body.document_id, body.document_name
     )
+    return stream_events(events)
 
 
 @app.post('/query')
 def query_item(body: QueryBody):
-    folder_id = body.folder_id
-    top_k = body.top_k
-    question = body.question
-    debug = body.debug
-
-    query_item = run_query(folder_id, top_k, question, debug)
-
-    return StreamingResponse(
-        to_ndjson(with_errors(query_item)), media_type='application/x-ndjson'
-    )
+    events = run_query(body.folder_id, body.top_k, body.question, body.debug)
+    return stream_events(events)

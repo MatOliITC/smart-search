@@ -33,9 +33,10 @@ def format_chunk(position: int, chunk: dict) -> str:
 
 
 def build_messages(question: str, chunks: list[dict]) -> list[dict]:
-    # Vengono messi dei segnaposto numerati nelle corrispondenze delle frasi dei chunk.
-    # es. passiamo una lista di chunk tra i quali: {Postion:[1], file: 'document.pdf', page: 2, text: 'Il mio testo del chunk nel quale il modello farà ricerca}
-    # il modello userà i segnaposto per contrassegnare le corrispondenze trovate in maniera che potremmo estrarne i sources"
+    # Ogni chunk diventa un "bigliettino" numerato da 1 (vedi format_chunk):
+    #   === SOURCE [1] (pompa.txt, page 2) === ... === END OF SOURCE [1] ===
+    # Il modello scrive [n] nella SUA risposta, dopo le frasi prese dal
+    # bigliettino n; extract_sources legge quei numeri e risale alle fonti.
     formatted_chunks = [
         format_chunk(i + 1, chunk) for i, chunk in enumerate(chunks)
     ]

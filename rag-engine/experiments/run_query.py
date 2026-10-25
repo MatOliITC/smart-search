@@ -1,4 +1,5 @@
-# python -m experiments.run_query --question 'La pompa si ferma con il freddo' --folder-id f1 --top-k 3
+# python -m experiments.run_query --question 'La pompa si ferma con il freddo'
+#     --folder-id f1 --top-k 3
 
 import argparse
 import json

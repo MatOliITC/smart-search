@@ -1,4 +1,7 @@
-"""Unico punto di contatto con il server dei modelli (oggi Ollama, via API compatibile OpenAI)."""
+"""Unico punto di contatto con il server dei modelli.
+
+Oggi è Ollama, raggiunto tramite la sua API compatibile OpenAI.
+"""
 
 from openai import APIConnectionError, NotFoundError, OpenAI
 

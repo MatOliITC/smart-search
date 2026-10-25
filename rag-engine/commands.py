@@ -16,27 +16,33 @@ from rag.vector_store import (
 )
 
 
-def run_index(file, folder_id, document_id, document_name) -> Iterator[dict]:
+def run_index(
+    file: str, folder_id: str, document_id: str, document_name: str
+) -> Iterator[dict]:
     yield {'type': 'progress', 'stage': 'extracting'}
     pages = extract_pages(file)
 
     yield {'type': 'progress', 'stage': 'chunking', 'pages': len(pages)}
     chunks = chunk_pages(pages, config.CHUNK_SIZE, config.CHUNK_OVERLAP)
 
-    embedding = []
-    for embed_batch in embed_batches(chunks, config.EMBEDDING_BATCH_SIZE):
-        embedding.extend(embed_batch)
+    embedded_chunks = []
+    for batch in embed_batches(chunks, config.EMBEDDING_BATCH_SIZE):
+        embedded_chunks.extend(batch)
         yield {
             'type': 'progress',
             'stage': 'embedding',
-            'done': len(embedding),
+            'done': len(embedded_chunks),
             'total': len(chunks),
         }
 
-    yield {'type': 'progress', 'stage': 'saving', 'chunks': len(embedding)}
+    yield {
+        'type': 'progress',
+        'stage': 'saving',
+        'chunks': len(embedded_chunks),
+    }
 
     saved = save_document_chunks(
-        embedding,
+        embedded_chunks,
         folder_id,
         document_id,
         document_name,
@@ -52,10 +58,10 @@ def run_index(file, folder_id, document_id, document_name) -> Iterator[dict]:
     }
 
 
-def run_query(folder_id, top_k, question, debug) -> Iterator[dict]:
-
+def run_query(
+    folder_id: str, top_k: int, question: str, debug: bool
+) -> Iterator[dict]:
     yield {'type': 'progress', 'stage': 'embedding_question'}
-
     question_vector = embed([question])[0]
 
     yield {'type': 'progress', 'stage': 'searching'}
