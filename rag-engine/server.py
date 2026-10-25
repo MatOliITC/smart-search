@@ -1,7 +1,7 @@
 import json
 from collections.abc import Iterator
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
@@ -24,6 +24,17 @@ def to_ndjson(events) -> Iterator[str]:
 def delete_item(body: DeleteBody):
     document_id = body.document_id
     folder_id = body.folder_id
+
+    if not document_id and not folder_id:
+        raise HTTPException(
+            status_code=422, detail='Missing document or folder id'
+        )
+
+    if document_id and folder_id:
+        raise HTTPException(
+            status_code=422, detail='You could pass one argument per time'
+        )
+
     deleted_item = run_delete(document_id, folder_id)
 
     return StreamingResponse(
