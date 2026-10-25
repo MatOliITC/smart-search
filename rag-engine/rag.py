@@ -86,11 +86,6 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def emit(event_type: str, **data) -> None:
-    event = {'type': event_type, **data}
-    print(json.dumps(event, ensure_ascii=False), flush=True)
-
-
 def print_event(event: dict) -> None:
     print(json.dumps(event, ensure_ascii=False), flush=True)
 
@@ -223,18 +218,24 @@ def main() -> int:
                 print_event(event)
             return EXIT
 
-        emit(
-            'error',
-            code='NOT_IMPLEMENTED',
-            message=f"Comando '{args.command}' non ancora implementato",
+        print_event(
+            {
+                'type': 'error',
+                'code': 'NOT_IMPLEMENTED',
+                'message': f"Comando '{args.command}' non ancora implementato",
+            }
         )
         return EXIT_WITH_ERROR
     except RagError as error:
-        emit('error', code=error.code, message=error.message)
+        print_event(
+            {'type': 'error', 'code': error.code, 'message': error.message}
+        )
         return EXIT_WITH_ERROR
     except Exception as error:
         traceback.print_exc()
-        emit('error', code='INTERNAL_ERROR', message=str(error))
+        print_event(
+            {'type': 'error', 'code': 'INTERNAL_ERROR', 'message': str(error)}
+        )
         return EXIT_WITH_ERROR
 
 
