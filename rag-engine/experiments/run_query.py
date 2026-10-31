@@ -27,14 +27,18 @@ def readable_result(event: dict) -> None:
         print('Error:', f'[error {event["code"]}]: {event["message"]}')
         return
 
+    if event['type'] == 'token':
+        print(event['text'], end='', flush=True)
+        return
+
     if event['type'] == 'result':
+        print('')
         print('Result:', event['type'])
         print('Question:', event['question'])
 
         if event['answer'] is None:
             print('Answer: no answer found in the documents.')
         else:
-            print('Answer:', event['answer'])
             print('Sources:')
             for source in event['sources']:
                 print(
