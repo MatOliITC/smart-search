@@ -63,8 +63,12 @@ python -m experiments.run_index --file samples\tagliando_auto.txt --folder-id f2
 # Risponde a una domanda usando solo i documenti della cartella indicata
 # Cerca i --top-k chunk più pertinenti, li passa a gemma3:4b e restituisce la risposta con le fonti:
 #   {"type": "result", "question": "...", "answer": "... [1].", "sources": [{"number": 1, "document_id": "d1", "document_name": "pompa.txt", "page": 1}]}
-# Risposta non trovata (cartella vuota, oppure domanda fuori tema) → "answer": null, "sources": [] (non è un errore).
-# Su CPU la risposta può richiedere 10-30 secondi.
+# Mentre il modello scrive, tra "generating" e "result" arrivano i pezzi della risposta, uno per riga:
+#   {"type": "token", "text": " codice"}
+# Concatenati danno lo stesso testo di "answer"; chi non li usa può ignorarli e leggere solo il result.
+# Risposta non trovata (cartella vuota, oppure domanda fuori tema) → "answer": null, "sources": [] (non è un errore),
+# e nessun evento token: i pezzi di NO_ANSWER vengono trattenuti e mai inviati.
+# Su CPU la risposta può richiedere 10-30 secondi (quasi tutti prima del primo token: il modello legge il prompt).
 python rag.py query --folder-id f1 --question "Cosa significa il codice E05?" --top-k 3
 python rag.py query --folder-id f1 --question "Come si cambia l'olio?" --top-k 3
 
@@ -115,7 +119,8 @@ Rotte (tutte `POST`, body JSON):
 | `/delete` | `document_id` **oppure** `folder_id` | esattamente uno dei due |
 
 La risposta è in streaming, in formato NDJSON (`Content-Type: application/x-ndjson`):
-una riga JSON per evento, con gli stessi eventi del CLI (`progress`, `result`, `error`).
+una riga JSON per evento, con gli stessi eventi del CLI (`progress`, `token` solo in `/query`,
+`result`, `error`).
 
 - **Body non valido** (campo mancante, `/delete` con nessuno o entrambi gli id) → status **422**,
   prima che lo stream parta.
@@ -185,7 +190,9 @@ I test sono in `tests/` (file `test_*.py`, funzioni `test_*`) e coprono solo le 
 deterministiche: non usano Ollama né il vector DB. Configurazione in `pyproject.toml`.
 
 File attuali: `test_prompt.py` (`extract_sources`, `format_chunk`, `build_messages`),
-`test_chunking.py` (`chunk_pages`) e `test_vector_store.py` (`sql_string`).
+`test_chunking.py` (`chunk_pages`), `test_vector_store.py` (`sql_string`) e
+`test_commands.py` (`run_query` con `NO_ANSWER` trattenuto; Ollama e DB sostituiti
+con `monkeypatch`).
 
 ```powershell
 pytest                          # tutti i test
@@ -213,6 +220,24 @@ a ogni salvataggio il file viene formattato e gli import riordinati
 (impostazioni in `smart-search/.vscode/settings.json`). Il salvataggio non
 applica le altre correzioni di `ruff check` (es. commenti oltre 80 colonne).
 
+## Debug in VS Code
+
+Serve l'estensione **Python** di Microsoft (porta con sé Python Debugger) e la
+cartella `smart-search` aperta come cartella di lavoro: le configurazioni
+sono in `smart-search/.vscode/launch.json`. Interprete: `Python: Select
+Interpreter` → `rag-engine\.venv\Scripts\python.exe`.
+
+1. Pallino rosso a sinistra del numero di riga (oppure F9).
+2. `Ctrl+Shift+D` → scegliere la configurazione → F5:
+   - **prova generate_stream**: solo `generate_stream` con un messaggio corto;
+   - **rag.py query (E05)**: la query completa (cambiare la domanda in `args`);
+   - **server (uvicorn)**: il server senza `--reload` (poi chiamarlo con `curl.exe`).
+3. Variabili nel pannello Variables, F10 riga successiva, F5 continua.
+
+I breakpoint scattano solo con F5: `python ...` lanciato dal terminale li ignora.
+In alternativa, senza VS Code: `breakpoint()` nel codice → prompt `(Pdb)`
+nel terminale (`p variabile`, `n`, `c`, `q`); da togliere dopo l'uso.
+
 ## Configurazione
 
 I parametri sono in `config.py`: dimensione e overlap dei chunk, indirizzo del server dei modelli, modello di embedding, modello di generazione (`LLM_MODEL`), temperatura e lingua della risposta.
@@ -224,4 +249,4 @@ Le regole date al modello (prompt di sistema) sono in `rag/prompt.py`.
 - `commands.py`: i tre comandi (`run_index`, `run_query`, `run_delete`) come generatori di eventi, più `with_errors`, che trasforma le eccezioni in eventi `error`.
 - `rag.py`: ingresso da terminale (argomenti con argparse, eventi stampati su stdout, exit code).
 - `server.py`: ingresso HTTP (body validato da FastAPI, eventi mandati in streaming).
-- `rag/`, `extraction/`, `llm_client.py`: il motore vero e proprio (chunking, embeddings, vector DB, prompt, modelli).
+- `rag/`, `extraction/`, `llm_client.py`: il motore vero e proprio (chunking, embeddings, vector DB, prompt, modelli). `llm_client.generate_stream` restituisce la risposta del modello un pezzo alla volta.
