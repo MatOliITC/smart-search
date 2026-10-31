@@ -3,6 +3,8 @@
 Oggi è Ollama, raggiunto tramite la sua API compatibile OpenAI.
 """
 
+from collections.abc import Iterator
+
 from openai import APIConnectionError, NotFoundError, OpenAI
 
 import config
@@ -33,13 +35,18 @@ def embed(texts: list[str]) -> list[list[float]]:
     return [item.embedding for item in items]
 
 
-def generate(messages: list[dict]) -> str:
+def generate_stream(messages: list[dict]) -> Iterator[str]:
     try:
-        response = client.chat.completions.create(
+        stream = client.chat.completions.create(
             model=config.LLM_MODEL,
             messages=messages,
             temperature=config.LLM_TEMPERATURE,
+            stream=True,
         )
+
+        for chunk in stream:
+            if chunk.choices[0].delta.content:
+                yield chunk.choices[0].delta.content
 
     except APIConnectionError as error:
         raise RagError(
@@ -52,5 +59,3 @@ def generate(messages: list[dict]) -> str:
             'MODEL_NOT_FOUND',
             f"Modello '{config.LLM_MODEL}' non trovato sul server",
         ) from error
-
-    return response.choices[0].message.content or ''

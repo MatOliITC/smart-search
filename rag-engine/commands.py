@@ -4,7 +4,7 @@ from collections.abc import Iterator
 import config
 from errors import RagError
 from extraction.extractor import extract_pages
-from llm_client import embed, generate
+from llm_client import embed, generate_stream
 from rag.chunking import chunk_pages
 from rag.embeddings import embed_batches
 from rag.prompt import NO_ANSWER, build_messages, extract_sources
@@ -84,13 +84,26 @@ def run_query(
     yield {'type': 'progress', 'stage': 'generating'}
 
     messages = build_messages(question, chunks)
-    response = generate(messages)
+    cumulative_response = ''
+    check_on_no_answer = True
 
-    if response.strip() == NO_ANSWER:
+    for message in generate_stream(messages):
+        cumulative_response += message
+
+        if check_on_no_answer:
+            if NO_ANSWER.startswith(cumulative_response.strip()):
+                continue
+            else:
+                check_on_no_answer = False
+                yield {'type': 'token', 'text': cumulative_response}
+        else:
+            yield {'type': 'token', 'text': message}
+
+    if cumulative_response.strip() == NO_ANSWER:
         answer = None
         sources = []
     else:
-        answer = response
+        answer = cumulative_response
         sources = extract_sources(answer, chunks)
 
     result = {
