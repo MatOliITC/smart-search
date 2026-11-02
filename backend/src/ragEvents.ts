@@ -41,3 +41,10 @@ export type RagEvent =
   | TokenEvent
   | QueryResultEvent
   | ErrorEvent;
+
+export const RAG_EVENT = {
+  PROGRESS: "progress",
+  TOKEN: "token",
+  RESULT: "result",
+  ERROR: "error",
+} as const;

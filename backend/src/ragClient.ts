@@ -7,6 +7,7 @@ async function* readEvents(
 ): AsyncGenerator<RagEvent> {
   const decoder = new TextDecoder();
   let buffer = "";
+
   for await (const bytes of body) {
     buffer += decoder.decode(bytes, {stream: true});
     const lines = buffer.split("\n");
@@ -40,5 +41,6 @@ export async function* queryRag(
     throw new Error(`Errore ${response.status}: ${detail}`);
   }
 
+  // shortform, identica a un ciclo loop for con dentro yield
   yield* readEvents(response.body!);
 }
