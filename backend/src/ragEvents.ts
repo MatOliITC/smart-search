@@ -36,15 +36,41 @@ type QueryResultEvent = {
 
 type ErrorEvent = {type: "error"; code: string; message: string};
 
-export type RagEvent =
+type IndexResultEvent = {
+  type: "result";
+  document_id: string;
+  pages: number;
+  chunks: number;
+  embedding_model: string;
+};
+
+type DeleteResultEvent = {
+  type: "result";
+  document_id: null | string;
+  folder_id: null | string;
+  deleted_chunks: number;
+};
+
+export type QueryEvent =
   | ProgressEvent
   | TokenEvent
   | QueryResultEvent
   | ErrorEvent;
+
+export type IndexEvent = ProgressEvent | IndexResultEvent | ErrorEvent;
+
+export type DeleteEvent = ProgressEvent | DeleteResultEvent | ErrorEvent;
 
 export const RAG_EVENT = {
   PROGRESS: "progress",
   TOKEN: "token",
   RESULT: "result",
   ERROR: "error",
+} as const;
+
+export const INDEX_STAGES = {
+  EXTRACTING: "extracting",
+  CHUNKING: "chunking",
+  EMBEDDING: "embedding",
+  SAVING: "saving",
 } as const;
