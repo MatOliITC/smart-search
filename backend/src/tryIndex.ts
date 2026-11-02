@@ -2,10 +2,10 @@ import {indexRag} from "./ragClient.ts";
 import {INDEX_STAGES, RAG_EVENT} from "./ragEvents.ts";
 
 for await (const event of indexRag(
-  "C:/Users/Matteo Olivieri/Desktop/ITC/POC/RAG/smart-search/rag-engine/samples/tagliando_autoaaa.txt",
+  "C:/Users/Matteo Olivieri/Desktop/ITC/POC/RAG/smart-search/rag-engine/samples/tagliando_auto.txt",
   "f12",
   "d4",
-  "tagliando_provaaaa.txt",
+  "tagliando_prova.txt",
 )) {
   switch (event.type) {
     case RAG_EVENT.PROGRESS:

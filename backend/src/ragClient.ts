@@ -2,6 +2,25 @@ import type {DeleteEvent, IndexEvent, QueryEvent} from "./ragEvents.ts";
 
 const RAG_URL = "http://127.0.0.1:8000";
 
+async function* streamRag<T>(
+  route: string,
+  body: {[key: string]: string | number | null},
+): AsyncGenerator<T> {
+  const response = await fetch(`${RAG_URL}/${route}`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(`Errore ${response.status}: ${detail}`);
+  }
+
+  // shortform, identica a un ciclo loop for con dentro yield
+  yield* readEvents<T>(response.body!);
+}
+
 async function* readEvents<T>(
   body: ReadableStream<Uint8Array>,
 ): AsyncGenerator<T> {
@@ -26,23 +45,15 @@ export async function* queryRag(
   question: string,
   topK: number,
 ): AsyncGenerator<QueryEvent> {
-  const response = await fetch(`${RAG_URL}/query`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({
-      folder_id: folderId,
-      question: question,
-      top_k: topK,
-    }),
-  });
+  const body = {
+    folder_id: folderId,
+    question: question,
+    top_k: topK,
+  };
 
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(`Errore ${response.status}: ${detail}`);
-  }
+  const stream = streamRag<QueryEvent>("query", body);
 
-  // shortform, identica a un ciclo loop for con dentro yield
-  yield* readEvents<QueryEvent>(response.body!);
+  yield* stream;
 }
 
 export async function* indexRag(
@@ -51,42 +62,28 @@ export async function* indexRag(
   documentId: string,
   documentName: string,
 ): AsyncGenerator<IndexEvent> {
-  const response = await fetch(`${RAG_URL}/index`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({
-      file,
-      folder_id: folderId,
-      document_id: documentId,
-      document_name: documentName,
-    }),
-  });
+  const body = {
+    file,
+    folder_id: folderId,
+    document_id: documentId,
+    document_name: documentName,
+  };
 
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(`Errore ${response.status}: ${detail}`);
-  }
+  const stream = streamRag<IndexEvent>("index", body);
 
-  yield* readEvents<IndexEvent>(response.body!);
+  yield* stream;
 }
 
 export async function* deleteRag(
   documentId: string | null,
   folderId: string | null,
 ): AsyncGenerator<DeleteEvent> {
-  const response = await fetch(`${RAG_URL}/delete`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({
-      document_id: documentId,
-      folder_id: folderId,
-    }),
-  });
+  const body = {
+    document_id: documentId,
+    folder_id: folderId,
+  };
 
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(`Errore ${response.status}: ${detail}`);
-  }
+  const stream = streamRag<DeleteEvent>("delete", body);
 
-  yield* readEvents<DeleteEvent>(response.body!);
+  yield* stream;
 }
