@@ -1,12 +1,11 @@
+import {BASE_RAG_URL} from "../config.ts";
 import type {DeleteEvent, IndexEvent, QueryEvent} from "./ragEvents.ts";
-
-const RAG_URL = "http://127.0.0.1:8000";
 
 async function* streamRag<T>(
   route: string,
   body: {[key: string]: string | number | null},
 ): AsyncGenerator<T> {
-  const response = await fetch(`${RAG_URL}/${route}`, {
+  const response = await fetch(`${BASE_RAG_URL}/${route}`, {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify(body),

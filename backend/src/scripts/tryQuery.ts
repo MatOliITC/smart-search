@@ -1,6 +1,6 @@
 // import {yieldExample} from "./doc/examples.ts";
-import {queryRag} from "./ragClient.ts";
-import {RAG_EVENT} from "./ragEvents.ts";
+import {queryRag} from "../rag/ragClient.ts";
+import {RAG_EVENT} from "../rag/ragEvents.ts";
 
 for await (const event of queryRag("f1", "Cosa significa il codice E05?", 3)) {
   switch (event.type) {

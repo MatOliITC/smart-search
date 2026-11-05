@@ -1,5 +1,5 @@
-import {deleteRag} from "./ragClient.ts";
-import {RAG_EVENT} from "./ragEvents.ts";
+import {deleteRag} from "../rag/ragClient.ts";
+import {RAG_EVENT} from "../rag/ragEvents.ts";
 
 for await (const event of deleteRag("d4", null)) {
   switch (event.type) {

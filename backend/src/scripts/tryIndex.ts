@@ -1,5 +1,5 @@
-import {indexRag} from "./ragClient.ts";
-import {INDEX_STAGES, RAG_EVENT} from "./ragEvents.ts";
+import {indexRag} from "../rag/ragClient.ts";
+import {INDEX_STAGES, RAG_EVENT} from "../rag/ragEvents.ts";
 
 for await (const event of indexRag(
   "C:/Users/Matteo Olivieri/Desktop/ITC/POC/RAG/smart-search/rag-engine/samples/tagliando_auto.txt",
