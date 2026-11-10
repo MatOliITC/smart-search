@@ -27,6 +27,7 @@ async function* readEvents<T>(
   let buffer = "";
 
   for await (const bytes of body) {
+    // Trasforma i byte ricevuti da py in linee di testo
     buffer += decoder.decode(bytes, {stream: true});
     const lines = buffer.split("\n");
     buffer = lines.pop()!;

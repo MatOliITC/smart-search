@@ -34,7 +34,10 @@ queryRouter.post("/", async (req, res) => {
     console.error("query failed:", error);
 
     if (!res.headersSent) {
-      res.status(502).json({message: "RAG engine unavailable"});
+      res
+        .status(502)
+        .type("applcation/json")
+        .json({message: "RAG engine unavailable"});
       return;
     }
 
