@@ -1,0 +1,19 @@
+Manuale d'uso - Condizionatore split inverter AC-12
+
+1. Introduzione
+Il condizionatore AC-12 è composto da un'unità interna a parete e da un'unità esterna. Può raffrescare, deumidificare e riscaldare l'ambiente. La potenza è di 12.000 BTU, adatta a stanze fino a 35 metri quadrati.
+
+2. Telecomando e modalità
+Il tasto MODE seleziona la modalità: COOL (raffrescamento), DRY (deumidificazione), HEAT (riscaldamento), FAN (solo ventilazione) e AUTO. In modalità DRY il ventilatore gira a bassa velocità e la temperatura impostata viene ignorata. Il tasto SLEEP aumenta di 1 °C la temperatura ogni ora per due ore, per ridurre i consumi durante la notte.
+
+3. Funzionamento in riscaldamento con il freddo
+In modalità HEAT il condizionatore funziona fino a -10 °C esterni. Sotto questa temperatura l'unità esterna si ferma per proteggere il compressore e sul display compare il codice E05; riparte da sola quando la temperatura esterna risale sopra -7 °C. Quando fa freddo e umido l'unità esterna esegue cicli di sbrinamento di circa 10 minuti, durante i quali l'unità interna smette di soffiare aria calda.
+
+4. Codici di errore
+E01 - Errore di comunicazione tra unità interna ed esterna: verificare che l'interruttore dell'unità esterna sia acceso. Se l'errore resta contattare l'assistenza.
+E03 - Ventilatore interno bloccato: spegnere il condizionatore e controllare che nessun oggetto ostruisca la griglia.
+E05 - Protezione per bassa temperatura esterna in riscaldamento (vedi capitolo 3).
+E09 - Vaschetta della condensa piena: la pompa di scarico non riesce a smaltire l'acqua. Controllare che il tubo di scarico non sia ostruito.
+
+5. Pulizia e manutenzione
+I filtri dell'aria dell'unità interna vanno puliti ogni 2 settimane nei periodi di uso intenso: aprire il pannello frontale, estrarre i filtri, lavarli con acqua tiepida e lasciarli asciugare all'ombra prima di rimontarli. Una volta l'anno un tecnico deve sanificare la batteria interna e controllare il gas refrigerante. Non usare mai il condizionatore senza filtri.

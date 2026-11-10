@@ -1,0 +1,20 @@
+riunione 12/03 - progetto Atlante
+presenti: io, Giulia, Marco, Fede (Sara assente, la aggiorno io)
+
+- rilascio slitta dal 15 al 30 aprile x via dei ritardi sul modulo pagamenti. il cliente l'ha presa male ma ok
+- budget confermato 45k, cmq Marco dice che sui test siamo stretti, forse chiediamo altri 5k
+- Giulia si prende i test end to end, Fede fa la migrazione del db (deadline 4 aprile!!)
+- server di staging lentissimo, sembra la ram. Marco apre ticket all'IT
+- demo al cliente il 22/04 h 10:30, la fa Giulia, io preparo le slide
+
+cose da fare (mie):
+1. mandare il verbale entro venerdì
+2. chiedere a Sara se riesce a coprire il supporto la settimana di pasqua
+3. sentire l'IT per le licenze del tool di test (scadono a fine mese)
+
+riunione 19/03
+- migrazione db: Fede è al 70%, problema con le date in formato vecchio, ci serve un giorno in più. nuova deadline 5 aprile
+- staging: ticket chiuso, hanno aggiunto 8 giga di ram, ora va bene
+- il cliente chiede anche l'export in excel dei report. NON era nel perimetro, Marco dice di metterlo nella fase 2 e di non promettere niente
+- budget extra 5k per i test: approvato dal capo!!
+- prossima riunione 26/03, porto io i biscotti

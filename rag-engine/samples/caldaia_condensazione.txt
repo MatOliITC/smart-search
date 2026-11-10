@@ -1,0 +1,19 @@
+Manuale d'uso - Caldaia a condensazione a gas CB-24
+
+1. Introduzione
+La caldaia CB-24 produce acqua calda per il riscaldamento e per uso sanitario bruciando gas metano. Grazie alla condensazione recupera il calore contenuto nei fumi di scarico e raggiunge un rendimento superiore al 100% sul potere calorifico inferiore. La potenza nominale è di 24 kW.
+
+2. Pressione dell'impianto
+A impianto freddo la pressione indicata dal manometro deve essere compresa tra 1 e 1,5 bar. Se scende sotto 0,8 bar la caldaia si ferma e mostra il codice E10. Per ripristinare la pressione aprire lentamente il rubinetto di riempimento sotto la caldaia e richiuderlo quando l'indicatore arriva a 1,2 bar. Se la pressione cala più di una volta al mese è probabile una perdita nell'impianto: contattare l'assistenza.
+
+3. Funzionamento in inverno e protezione antigelo
+La caldaia è dotata di una funzione antigelo che si attiva automaticamente quando la temperatura dell'acqua nel circuito scende sotto 7 °C: il bruciatore si accende finché l'acqua non raggiunge 15 °C. La funzione è attiva solo se la caldaia è alimentata elettricamente e il gas è aperto. Se l'abitazione resta disabitata d'inverno non staccare la corrente. Il tubo di scarico della condensa, se passa all'esterno, può ghiacciare sotto i -5 °C: in questo caso la caldaia si blocca con il codice E28.
+
+4. Codici di errore
+E01 - Mancata accensione: il bruciatore non si è acceso dopo tre tentativi. Verificare che il rubinetto del gas sia aperto e premere il tasto RESET. Se l'errore si ripete contattare l'assistenza.
+E05 - Sonda di mandata guasta: la sonda che misura la temperatura dell'acqua in uscita è interrotta o in cortocircuito. Non si risolve con il RESET: contattare l'assistenza.
+E10 - Pressione impianto insufficiente: ripristinare la pressione come indicato nel capitolo 2.
+E28 - Scarico condensa ostruito o ghiacciato: verificare che il tubo della condensa non sia piegato o gelato. Dopo averlo liberato premere RESET.
+
+5. Manutenzione
+La manutenzione ordinaria va eseguita una volta l'anno da un tecnico abilitato, che controlla bruciatore, scambiatore e sifone della condensa. Il controllo dei fumi (prova di combustione) è obbligatorio ogni 2 anni e va registrato sul libretto di impianto. L'utente può pulire la scocca esterna con un panno umido, senza solventi.

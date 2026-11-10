@@ -1,0 +1,21 @@
+Guida rapida - Pompa di calore monoblocco HP-12 per acqua calda sanitaria
+
+1. Descrizione
+La HP-12 è uno scaldacqua a pompa di calore con serbatoio integrato da 200 litri. Preleva calore dall'aria del locale in cui è installata (cantina, garage, lavanderia) e lo usa per scaldare l'acqua sanitaria fino a 55 °C. Non serve per il riscaldamento della casa.
+
+2. Installazione
+Il locale di installazione deve avere un volume di almeno 20 metri cubi e una temperatura compresa tra 5 °C e 35 °C. L'apparecchio va posato su un pavimento in grado di sostenere 300 kg a serbatoio pieno. Collegare lo scarico della condensa a un pozzetto o a uno scarico domestico.
+
+3. Funzionamento con il freddo
+Se la temperatura del locale scende sotto 5 °C la pompa di calore si ferma e il riscaldamento dell'acqua passa alla resistenza elettrica da 1,5 kW, con consumi più alti. Non è un guasto: la pompa di calore riprende a funzionare quando il locale torna sopra 7 °C.
+
+4. Funzione antilegionella
+Una volta alla settimana, di notte, l'acqua del serbatoio viene portata a 65 °C per eliminare il batterio della legionella. La funzione si imposta dal menu SETUP e non va disattivata.
+
+5. Codici di errore
+E05 - Anodo di protezione esaurito: l'anodo al magnesio che protegge il serbatoio dalla corrosione va sostituito. Contattare l'assistenza.
+E08 - Temperatura del locale fuori dai limiti (vedi capitolo 3).
+E12 - Sonda del serbatoio guasta: contattare l'assistenza.
+
+6. Manutenzione
+Pulire il filtro dell'aria in ingresso ogni 3 mesi aspirando la polvere. Far controllare l'anodo al magnesio da un tecnico ogni 2 anni.
