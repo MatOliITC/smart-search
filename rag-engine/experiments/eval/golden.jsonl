@@ -1,0 +1,17 @@
+{"question": "Cosa significa il codice E05?", "folder_id": "f1", "category": "ambigua", "relevant": ["d1-0002", "d3-0002", "d4-0001", "d4-0002", "d5-0001"], "keywords": ["bassa temperatura", "sonda", "anodo", "protezione"]}
+{"question": "Cosa significa il codice E05 sulla caldaia?", "folder_id": "f1", "category": "specifica", "relevant": ["d3-0002"], "keywords": ["sonda di mandata", "assistenza"]}
+{"question": "Perché il climatizzatore smette di scaldare la stanza quando fuori gela?", "folder_id": "f1", "category": "parafrasata", "relevant": ["d4-0001"], "keywords": ["-10", "sbrinamento"]}
+{"question": "Quale deve essere la pressione dell'impianto della caldaia?", "folder_id": "f1", "category": "specifica", "relevant": ["d3-0000"], "keywords": ["1,5 bar"]}
+{"question": "Come si cambia l'olio?", "folder_id": "f1", "category": "senza_risposta", "relevant": [], "keywords": []}
+{"question": "Ogni quanti chilometri va fatto il tagliando dell'auto diesel?", "folder_id": "f2", "category": "specifica", "relevant": ["d6-0000"], "keywords": ["30.000", "24 mesi"]}
+{"question": "Con quanto anticipo l'inquilino deve avvisare se vuole lasciare l'appartamento?", "folder_id": "f3", "category": "parafrasata", "relevant": ["d7-0001"], "keywords": ["sei mesi", "raccomandata"]}
+{"question": "Posso tenere un cane in casa?", "folder_id": "f3", "category": "ambigua", "relevant": ["d7-0003", "d8-0002"], "keywords": ["consenso scritto", "piccola taglia", "guinzaglio"]}
+{"question": "A quanto ammonta il deposito cauzionale e quando viene restituito?", "folder_id": "f3", "category": "specifica", "relevant": ["d7-0002"], "keywords": ["2.250", "sessanta giorni"]}
+{"question": "In quali orari non si può fare rumore nel condominio?", "folder_id": "f3", "category": "specifica", "relevant": ["d8-0001"], "keywords": ["14", "22"]}
+{"question": "Chi paga la sostituzione della caldaia?", "folder_id": "f3", "category": "specifica", "relevant": ["d7-0003"], "keywords": ["locatore"]}
+{"question": "Quanto costa l'affitto del box auto?", "folder_id": "f3", "category": "senza_risposta", "relevant": [], "keywords": []}
+{"question": "Entro quando deve essere finita la migrazione del database?", "folder_id": "f4", "category": "specifica", "relevant": ["d9-0001"], "keywords": ["5 aprile"]}
+{"question": "Quanto tempo deve cuocere il sugo di carne?", "folder_id": "f4", "category": "parafrasata", "relevant": ["d10-0001"], "keywords": ["3 ore"]}
+{"question": "Quanto ho speso in tutto per il viaggio in Portogallo?", "folder_id": "f4", "category": "specifica", "relevant": ["d11-0001"], "keywords": ["620"]}
+{"question": "Come si cambia l'olio del motore?", "folder_id": "f4", "category": "senza_risposta", "relevant": [], "keywords": []}
+{"question": "Che tempo fa a Milano?", "folder_id": "f4", "category": "senza_risposta", "relevant": [], "keywords": []}
