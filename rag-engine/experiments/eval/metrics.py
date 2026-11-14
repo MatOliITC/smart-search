@@ -21,3 +21,25 @@ def reciprocal_rank(retrieved_ids: list[str], relevant_ids: list[str]) -> float:
         if chunk_id in relevant_ids:
             return 1 / position
     return 0.0
+
+
+def keyword_coverage(answer: str | None, keywords: list[str]) -> float:
+    """si contano le keyword trovate / il totale delle keyword.
+    keywords non deve essere vuota"""
+
+    if answer is None:
+        return 0.0
+
+    lower_answer = answer.lower()
+
+    found_keyword = [
+        keyword for keyword in keywords if keyword.lower() in lower_answer
+    ]
+
+    return len(found_keyword) / len(keywords)
+
+
+def answer_presence_ok(answer: str | None, relevant: list[str]) -> bool:
+    if len(relevant) and answer or not len(relevant) and not answer:
+        return True
+    return False
