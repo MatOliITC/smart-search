@@ -6,6 +6,7 @@ CHUNKS = [
         'document_name': 'pompa_di_calore.txt',
         'page': 5,
         'text': 'Il codice E05 indica il blocco per bassa temperatura.',
+        'chunk_index': 5,
     },
 ]
 
@@ -74,6 +75,7 @@ def test_normal_answer_streams_each_piece(monkeypatch):
                 'document_id': 'd1',
                 'document_name': 'pompa_di_calore.txt',
                 'page': 5,
+                'chunk_index': 5,
             },
         ],
     }

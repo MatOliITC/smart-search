@@ -5,6 +5,7 @@ from experiments.eval.metrics import (
     hit_at_k,
     keyword_coverage,
     reciprocal_rank,
+    sources_in_relevant,
 )
 
 RETRIEVED = ['d1-0002', 'd4-0002', 'd5-0001', 'd3-0002', 'd4-0001']
@@ -63,3 +64,70 @@ def test_keyword_coverage(answer, keywords, expected):
 )
 def test_answer_presence_ok(relevant, answer, expect):
     assert answer_presence_ok(answer, relevant) == expect
+
+
+@pytest.mark.parametrize(
+    'sources, relevant, expect',
+    [
+        (
+            [
+                [
+                    {
+                        'document_id': 'd1',
+                        'chunk_index': 2,
+                    },
+                    {
+                        'document_id': 'd4',
+                        'chunk_index': 1,
+                    },
+                ],
+                ['d1-0002', 'd4-0001'],
+                True,
+            ]
+        ),
+        (
+            [
+                [
+                    {
+                        'document_id': 'd1',
+                        'chunk_index': 2,
+                    },
+                    {
+                        'document_id': 'd4',
+                        'chunk_index': 3,
+                    },
+                ],
+                ['d1-0002', 'd4-0001'],
+                False,
+            ]
+        ),
+        (
+            [
+                [
+                    {
+                        'document_id': 'd4',
+                        'chunk_index': 2,
+                    }
+                ],
+                ['d4-0001'],
+                False,
+            ]
+        ),
+        (
+            [
+                [],
+                ['d1-0002'],
+                True,
+            ]
+        ),
+        (
+            [
+                [],
+                [],
+                True,
+            ]
+        ),
+    ],
+)
+def test_sources_in_relevant(sources, relevant, expect):
+    assert sources_in_relevant(sources, relevant) == expect

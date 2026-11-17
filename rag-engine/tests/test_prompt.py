@@ -13,18 +13,21 @@ CHUNKS = [
         'document_name': 'pompa_di_calore.txt',
         'page': 5,
         'text': 'Lorem ipsum dolor sit amet consectetur',
+        'chunk_index': 4,
     },
     {
         'document_id': 'd1',
         'document_name': 'pompa_di_calore.txt',
         'page': 9,
         'text': 'Lorem ipsum dolor sit amet consectetur.',
+        'chunk_index': 8,
     },
     {
         'document_id': 'd1',
         'document_name': 'pompa_di_calore.txt',
         'page': 29,
         'text': 'Lorem ipsum dolor sit amet consectetur.',
+        'chunk_index': 28,
     },
 ]
 
@@ -39,6 +42,7 @@ def test_quote_return_first_chunk():
             'document_id': 'd1',
             'document_name': 'pompa_di_calore.txt',
             'page': 5,
+            'chunk_index': 4,
         }
     ]
 
@@ -53,18 +57,21 @@ def test_multiple_quotes():
             'document_id': 'd1',
             'document_name': 'pompa_di_calore.txt',
             'page': 9,
+            'chunk_index': 8,
         },
         {
             'number': 3,
             'document_id': 'd1',
             'document_name': 'pompa_di_calore.txt',
             'page': 29,
+            'chunk_index': 28,
         },
         {
             'number': 1,
             'document_id': 'd1',
             'document_name': 'pompa_di_calore.txt',
             'page': 5,
+            'chunk_index': 4,
         },
     ]
 
