@@ -25,6 +25,7 @@ export type Source = {
   document_id: string;
   document_name: string;
   page: number;
+  chunk_index: number;
 };
 
 type QueryResultEvent = {

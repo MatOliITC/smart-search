@@ -1,3 +1,4 @@
+# print('something', file=sys.stderr)
 import re
 
 import config
@@ -70,6 +71,7 @@ def extract_sources(answer: str, chunks: list[dict]) -> list[dict]:
                     'document_id': chunk['document_id'],
                     'document_name': chunk['document_name'],
                     'page': chunk['page'],
+                    'chunk_index': chunk['chunk_index'],
                 }
             )
     return sources

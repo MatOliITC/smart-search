@@ -43,3 +43,18 @@ def answer_presence_ok(answer: str | None, relevant: list[str]) -> bool:
     if len(relevant) and answer or not len(relevant) and not answer:
         return True
     return False
+
+
+def sources_in_relevant(sources: list[dict], relevant: list[str]) -> bool:
+    ids = [
+        f'{source["document_id"]}-{source["chunk_index"]:04d}'
+        for source in sources
+    ]
+
+    if not sources or not sources and not relevant:
+        return True
+
+    for id in ids:
+        if id not in relevant:
+            return False
+    return True
