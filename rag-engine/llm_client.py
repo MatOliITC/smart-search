@@ -1,6 +1,7 @@
-"""Unico punto di contatto con il server dei modelli.
+"""Unico punto di contatto con i server dei modelli.
 
-Oggi è Ollama, raggiunto tramite la sua API compatibile OpenAI.
+Embedding e generazione hanno ognuno il proprio client (Ollama o OpenAI,
+scelti nel .env, vedi config.PROVIDERS), entrambi tramite l'API OpenAI.
 """
 
 from collections.abc import Iterator
@@ -10,19 +11,28 @@ from openai import APIConnectionError, NotFoundError, OpenAI
 import config
 from errors import RagError
 
-client = OpenAI(base_url=config.LLM_BASE_URL, api_key=config.LLM_API_KEY)
+embedding_base_url = config.PROVIDERS[config.EMBEDDING_PROVIDER]['base_url']
+embedding_api_key = config.PROVIDERS[config.EMBEDDING_PROVIDER]['api_key']
+generation_base_url = config.PROVIDERS[config.GENERATION_PROVIDER]['base_url']
+generation_api_key = config.PROVIDERS[config.GENERATION_PROVIDER]['api_key']
+embedding_client = OpenAI(
+    base_url=embedding_base_url, api_key=embedding_api_key
+)
+generation_client = OpenAI(
+    base_url=generation_base_url, api_key=generation_api_key
+)
 
 
 def embed(texts: list[str]) -> list[list[float]]:
     try:
-        response = client.embeddings.create(
+        response = embedding_client.embeddings.create(
             model=config.EMBEDDING_MODEL, input=texts
         )
 
     except APIConnectionError as error:
         raise RagError(
             'MODEL_SERVER_UNREACHABLE',
-            f'Server dei modelli non raggiungibile su {config.LLM_BASE_URL}',
+            f'Server dei modelli non raggiungibile su {embedding_base_url}',
         ) from error
 
     except NotFoundError as error:
@@ -37,8 +47,8 @@ def embed(texts: list[str]) -> list[list[float]]:
 
 def generate_stream(messages: list[dict]) -> Iterator[str]:
     try:
-        stream = client.chat.completions.create(
-            model=config.LLM_MODEL,
+        stream = generation_client.chat.completions.create(
+            model=config.GENERATION_MODEL,
             messages=messages,
             temperature=config.LLM_TEMPERATURE,
             stream=True,
@@ -51,11 +61,11 @@ def generate_stream(messages: list[dict]) -> Iterator[str]:
     except APIConnectionError as error:
         raise RagError(
             'MODEL_SERVER_UNREACHABLE',
-            f'Server dei modelli non raggiungibile su {config.LLM_BASE_URL}',
+            f'Server dei modelli non raggiungibile su {generation_base_url}',
         ) from error
 
     except NotFoundError as error:
         raise RagError(
             'MODEL_NOT_FOUND',
-            f"Modello '{config.LLM_MODEL}' non trovato sul server",
+            f"Modello '{config.GENERATION_MODEL}' non trovato sul server",
         ) from error
