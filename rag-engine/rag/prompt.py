@@ -20,7 +20,12 @@ SYSTEM_PROMPT = (
     'that appear in the documents.\n'
     f'4. Always answer in {config.RESPONSE_LANGUAGE}, even if the question '
     'or the documents are in another language.\n'
-    '5. Be concise.'
+    '5. Only when the documents contain the answer, '
+    'include every relevant detail, condition and limit stated in the '
+    'documents. If different documents give different answers (for example '
+    'for different devices), report each of them. '
+    'If the documents do not answer the question, reply with exactly '
+    f'{NO_ANSWER}.'
 )
 
 
