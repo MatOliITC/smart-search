@@ -160,6 +160,12 @@ Codici di errore possibili: `FILE_NOT_FOUND`, `UNSUPPORTED_FORMAT`, `UNKNOWN_ENC
 `EMPTY_FILE`, `MODEL_SERVER_UNREACHABLE`, `MODEL_NOT_FOUND`, `NOT_IMPLEMENTED`,
 `INTERNAL_ERROR` (errore imprevisto: il traceback completo va su stderr).
 
+Errori legati ai provider dei modelli (configurati nel `.env`):
+`UNKNOWN_PROVIDER` (provider non presente in `config.PROVIDERS`, es. errore di
+battitura), `MISSING_API_KEY` (provider cloud senza chiave),
+`INVALID_API_KEY` (chiave sbagliata o revocata, HTTP 401), `RATE_LIMITED`
+(troppe richieste o credito esaurito, HTTP 429).
+
 ## Sperimentare dalla console Python
 
 ```powershell
