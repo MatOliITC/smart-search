@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -31,4 +32,11 @@ LLM_TEMPERATURE = 0
 RESPONSE_LANGUAGE = 'Italiano'
 
 VECTOR_DB_PATH = Path(__file__).parent / 'data' / 'vectordb'
-VECTOR_TABLE = 'chunks'
+
+
+def vector_table_name(embedding_model: str) -> str:
+    safe_name = re.sub(r'[^A-Za-z0-9_-]', '_', embedding_model)
+    return 'chunks_' + safe_name
+
+
+VECTOR_TABLE = vector_table_name(EMBEDDING_MODEL)
