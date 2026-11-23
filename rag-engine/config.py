@@ -26,6 +26,11 @@ GENERATION_MODEL = os.environ.get('GENERATION_MODEL', 'gemma3:4b')
 EMBEDDING_PROVIDER = os.environ.get('EMBEDDING_PROVIDER', 'ollama')
 EMBEDDING_MODEL = os.environ.get('EMBEDDING_MODEL', 'bge-m3')
 
+RERANK_ENABLED = os.environ.get('RERANK_ENABLED', 'false').lower() == 'true'
+RERANK_PROVIDER = os.environ.get('RERANK_PROVIDER', 'ollama')
+RERANK_MODEL = os.environ.get('RERANK_MODEL', 'gemma3:4b')
+RERANK_CANDIDATES = 10
+
 EMBEDDING_BATCH_SIZE = 32
 
 LLM_TEMPERATURE = 0
