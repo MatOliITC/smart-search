@@ -1,6 +1,7 @@
 import argparse
 
 from commands import run_query
+from experiments.eval.judge import judge
 from experiments.eval.metrics import (
     answer_presence_ok,
     keyword_coverage,
@@ -10,7 +11,7 @@ from experiments.eval_retrieval import GOLDEN_PATH, load_golden
 
 
 def get_results(question: str, folder_id: str, top_k: int) -> dict:
-    for event in run_query(folder_id, top_k, question, debug=False):
+    for event in run_query(folder_id, top_k, question, debug=True):
         if event['type'] == 'result':
             return event
 
@@ -20,6 +21,7 @@ def main(top_k):
     coverages = []
     presences = []
     sources_oks = []
+    verdicts = []
 
     for row in golden:
         result = get_results(row['question'], row['folder_id'], top_k)
@@ -54,12 +56,23 @@ def main(top_k):
             ]
             print(f'Fonti citate: {quotes}')
 
+        if answer is not None:
+            verdict, judge_text = judge(
+                question=question, chunks=result['chunks'], answer=answer
+            )
+            verdicts.append(verdict)
+            labels = {True: 'OK', False: 'ERRORE', None: 'FORMATO?'}
+            print(f'Fedeltà: {labels[verdict]}')
+            if verdict is not True:
+                print(f'Giudice: {judge_text}')
+
     print()
     print('===== Copertura keyword ======')
     print(f'Domande: {len(coverages)}')
     print(f'Top-k {top_k}: {(sum(coverages) / len(coverages)):.3f}')
     print(f'Risposte attese: {sum(presences)} / {len(presences)}')
     print(f'Fonti corrette: {sum(sources_oks)} / {len(sources_oks)}')
+    print(f'Risposte fedeli: {verdicts.count(True)} / {len(verdicts)}')
 
 
 if __name__ == '__main__':
