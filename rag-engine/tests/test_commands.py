@@ -1,4 +1,5 @@
 import commands
+import config
 
 CHUNKS = [
     {
@@ -19,6 +20,10 @@ def fake_search_chunks(vector, folder_id, embedding_model, top_k):
     return CHUNKS
 
 
+def fake_do_rerank(question, chunks):
+    return chunks
+
+
 def use_fakes(monkeypatch, pieces):
     def fake_generate_stream(messages):
         yield from pieces
@@ -26,6 +31,7 @@ def use_fakes(monkeypatch, pieces):
     monkeypatch.setattr(commands, 'embed', fake_embed)
     monkeypatch.setattr(commands, 'search_chunks', fake_search_chunks)
     monkeypatch.setattr(commands, 'generate_stream', fake_generate_stream)
+    monkeypatch.setattr(commands, 'do_rerank', fake_do_rerank)
 
 
 def run(question='Cosa significa E05?'):
@@ -79,3 +85,40 @@ def test_normal_answer_streams_each_piece(monkeypatch):
             },
         ],
     }
+
+
+def test_rerank_reorders_and_keeps_top_k(monkeypatch):
+    many_chunks = [
+        {
+            'document_id': name,
+            'document_name': f'{name}.txt',
+            'page': 1,
+            'text': f'Testo del chunk {name}.',
+            'chunk_index': 0,
+        }
+        for name in ['A', 'B', 'C', 'D']
+    ]
+
+    def fake_search_many(vector, folder_id, embedding_model, top_k):
+        return many_chunks
+
+    def fake_reverse_rerank(question, chunks):
+        return list(reversed(chunks))
+
+    use_fakes(monkeypatch, ['Risposta [1].'])
+    monkeypatch.setattr(commands, 'search_chunks', fake_search_many)
+    monkeypatch.setattr(commands, 'do_rerank', fake_reverse_rerank)
+    monkeypatch.setattr(config, 'RERANK_ENABLED', True)
+
+    events = list(commands.run_query('f1', 2, 'Domanda?', True))
+
+    stages = [event['stage'] for event in events if event['type'] == 'progress']
+    assert stages == [
+        'embedding_question',
+        'searching',
+        'reranking',
+        'generating',
+    ]
+
+    result_ids = [chunk['document_id'] for chunk in events[-1]['chunks']]
+    assert result_ids == ['D', 'C']
