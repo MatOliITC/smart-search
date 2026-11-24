@@ -1,10 +1,12 @@
 import argparse
 import json
+import time
 from pathlib import Path
 
 import config
 from experiments.eval.metrics import hit_at_k, reciprocal_rank
 from llm_client import embed
+from rag.rerank import do_rerank
 from rag.vector_store import search_chunks
 
 GOLDEN_PATH = Path(__file__).parent / 'eval' / 'golden.jsonl'
@@ -26,6 +28,13 @@ def load_golden(path: Path) -> list[dict]:
 def retrieve_ids(question: str, folder_id: str, top_k: int) -> list[str]:
     vector = embed([question])[0]
     chunks = search_chunks(vector, folder_id, config.EMBEDDING_MODEL, top_k)
+
+    chunks = (
+        do_rerank(question=question, chunks=chunks)
+        if config.RERANK_ENABLED
+        else chunks
+    )[:top_k]
+
     ids = []
     for chunk in chunks:
         ids.append(f'{chunk["document_id"]}-{chunk["chunk_index"]:04d}')
@@ -53,6 +62,10 @@ def print_results(title: str, results: list[dict], top_k: int):
 def main(top_k: int):
     golden_dataset = load_golden(GOLDEN_PATH)
     results = []
+    start = time.perf_counter()
+    if config.RERANK_ENABLED:
+        print('Reranking: ', True)
+        print('Reranking Model: ', config.RERANK_MODEL)
 
     for data in golden_dataset:
         if not data['relevant']:
@@ -86,6 +99,12 @@ def main(top_k: int):
         print(f'Hit {top_k}:', hit_k)
         print('Rank: ', rank)
 
+    elapsed = time.perf_counter() - start
+
+    print('')
+    print(
+        f'===== Total time: {(elapsed / len(results)):.1f}s per domanda ====='
+    )
     print('')
     print_results('tutte', results, top_k)
 
