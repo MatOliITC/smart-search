@@ -1,5 +1,7 @@
 import re
 
+from config import RERANK_MODEL, RERANK_PROVIDER
+from llm_client import create_client
 from rag.prompt import format_chunk
 
 RERANK_SYSTEM_PROMPT = (
@@ -11,6 +13,8 @@ RERANK_SYSTEM_PROMPT = (
     'You must respond ONLY with the source numbers in JSON format, '
     'for example [3, 1, 2], without adding any other text.'
 )
+NO_TEMPERATURE = 0
+FIRST_MESSAGE = 0
 
 
 def parse_ranking(text: str, chunk_count: int) -> list[int]:
@@ -46,3 +50,51 @@ def build_rerank_messages(question: str, chunks: list[dict]) -> list[dict]:
     ]
 
     return messages
+
+
+def apply_ranking(chunks: list[dict], ranking: list[int]) -> list[dict]:
+    ranked_indices = {rank - 1 for rank in ranking}
+
+    reranked = [chunks[rank - 1] for rank in ranking]
+
+    remaining = [
+        chunk for i, chunk in enumerate(chunks) if i not in ranked_indices
+    ]
+
+    return reranked + remaining
+
+
+def rerank(question: str, chunks: list[dict]) -> list[dict]:
+    client = create_client(provider=RERANK_PROVIDER)
+    messages = build_rerank_messages(question=question, chunks=chunks)
+    response = client.chat.completions.create(
+        model=RERANK_MODEL, messages=messages, temperature=NO_TEMPERATURE
+    )
+    ranking = parse_ranking(
+        text=response.choices[FIRST_MESSAGE].message.content,
+        chunk_count=len(chunks),
+    )
+    reranking = apply_ranking(chunks=chunks, ranking=ranking)
+
+    return reranking
+
+
+if __name__ == '__main__':
+    ##Test the reranked by calling this file in terminal
+    import config
+    from llm_client import embed
+    from rag.vector_store import search_chunks
+
+    question = 'Cosa significa il codice E05 sulla caldaia?'
+    vector = embed([question])[0]
+    chunks = search_chunks(
+        vector, 'f1', config.EMBEDDING_MODEL, config.RERANK_CANDIDATES
+    )
+
+    print('PRIMA:')
+    for chunk in chunks:
+        print(f'  {chunk["document_id"]}-{chunk["chunk_index"]:04d}')
+
+    print('DOPO:')
+    for chunk in rerank(question, chunks):
+        print(f'  {chunk["document_id"]}-{chunk["chunk_index"]:04d}')
