@@ -5,6 +5,7 @@ type ProgressStage =
   | "saving"
   | "embedding_question"
   | "searching"
+  | "reranking"
   | "generating"
   | "deleting_documents"
   | "deleting_folders";
