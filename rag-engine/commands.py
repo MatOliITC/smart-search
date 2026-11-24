@@ -8,6 +8,7 @@ from llm_client import embed, generate_stream
 from rag.chunking import chunk_pages
 from rag.embeddings import embed_batches
 from rag.prompt import NO_ANSWER, build_messages, extract_sources
+from rag.rerank import do_rerank
 from rag.vector_store import (
     delete_document_chunks,
     delete_folder_chunks,
@@ -64,12 +65,14 @@ def run_query(
     yield {'type': 'progress', 'stage': 'embedding_question'}
     question_vector = embed([question])[0]
 
+    dynamic_top_k = config.RERANK_CANDIDATES if config.RERANK_ENABLED else top_k
+
     yield {'type': 'progress', 'stage': 'searching'}
     chunks = search_chunks(
         question_vector,
         folder_id,
         config.EMBEDDING_MODEL,
-        top_k,
+        dynamic_top_k,
     )
 
     if not chunks:
@@ -80,6 +83,10 @@ def run_query(
             'sources': [],
         }
         return
+
+    if config.RERANK_ENABLED:
+        yield {'type': 'progress', 'stage': 'reranking'}
+        chunks = do_rerank(question=question, chunks=chunks)[:top_k]
 
     yield {'type': 'progress', 'stage': 'generating'}
 

@@ -64,7 +64,7 @@ def apply_ranking(chunks: list[dict], ranking: list[int]) -> list[dict]:
     return reranked + remaining
 
 
-def rerank(question: str, chunks: list[dict]) -> list[dict]:
+def do_rerank(question: str, chunks: list[dict]) -> list[dict]:
     client = create_client(provider=RERANK_PROVIDER)
     messages = build_rerank_messages(question=question, chunks=chunks)
     response = client.chat.completions.create(
@@ -96,5 +96,5 @@ if __name__ == '__main__':
         print(f'  {chunk["document_id"]}-{chunk["chunk_index"]:04d}')
 
     print('DOPO:')
-    for chunk in rerank(question, chunks):
+    for chunk in do_rerank(question, chunks):
         print(f'  {chunk["document_id"]}-{chunk["chunk_index"]:04d}')
