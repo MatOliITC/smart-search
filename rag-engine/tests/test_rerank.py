@@ -2,6 +2,7 @@ import pytest
 
 from rag.rerank import (
     RERANK_SYSTEM_PROMPT,
+    apply_ranking,
     build_rerank_messages,
     parse_ranking,
 )
@@ -24,6 +25,7 @@ CHUNKS = [
         'text': 'Testo del secondo chunk',
     },
 ]
+CHUNKS_EXAMPLE = ['A', 'B', 'C', 'D']
 SYSTEM = 0
 USER = 1
 
@@ -58,3 +60,15 @@ def test_build_rerank_messages():
     assert 'Testo del primo chunk' in user_content
     assert 'Testo del secondo chunk' in user_content
     assert user_content.endswith('Question: This is a question?')
+
+
+@pytest.mark.parametrize(
+    'ranking, expected',
+    [
+        ([3, 1], ['C', 'A', 'B', 'D']),
+        ([], ['A', 'B', 'C', 'D']),
+        ([2, 1, 3], ['B', 'A', 'C', 'D']),
+    ],
+)
+def test_apply_ranking(ranking, expected):
+    assert apply_ranking(chunks=CHUNKS_EXAMPLE, ranking=ranking) == expected
