@@ -3,6 +3,7 @@ type ProgressStage =
   | "chunking"
   | "embedding"
   | "saving"
+  | "rewriting"
   | "embedding_question"
   | "searching"
   | "reranking"

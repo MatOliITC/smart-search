@@ -9,12 +9,15 @@ from rag.chunking import chunk_pages
 from rag.embeddings import embed_batches
 from rag.prompt import NO_ANSWER, build_messages, extract_sources
 from rag.rerank import do_rerank
+from rag.rewrite import do_rewrite, merge_results
 from rag.vector_store import (
     delete_document_chunks,
     delete_folder_chunks,
     save_document_chunks,
     search_chunks,
 )
+
+ONE_QUESTION = 1
 
 
 def run_index(
@@ -62,18 +65,33 @@ def run_index(
 def run_query(
     folder_id: str, top_k: int, question: str, debug: bool
 ) -> Iterator[dict]:
+    questions = [question]
+    if config.REWRITE_ENABLED:
+        yield {'type': 'progress', 'stage': 'rewriting'}
+        questions.append(do_rewrite(question=question))
+
     yield {'type': 'progress', 'stage': 'embedding_question'}
-    question_vector = embed([question])[0]
+    vectors = embed(questions)
 
     dynamic_top_k = config.RERANK_CANDIDATES if config.RERANK_ENABLED else top_k
 
     yield {'type': 'progress', 'stage': 'searching'}
     chunks = search_chunks(
-        question_vector,
+        vectors[0],
         folder_id,
         config.EMBEDDING_MODEL,
         dynamic_top_k,
     )
+
+    if len(vectors) > ONE_QUESTION:
+        rewritten_chunks = search_chunks(
+            vectors[1],
+            folder_id,
+            config.EMBEDDING_MODEL,
+            dynamic_top_k,
+        )
+
+        chunks = merge_results(a=chunks, b=rewritten_chunks)
 
     if not chunks:
         yield {
@@ -87,6 +105,8 @@ def run_query(
     if config.RERANK_ENABLED:
         yield {'type': 'progress', 'stage': 'reranking'}
         chunks = do_rerank(question=question, chunks=chunks)[:top_k]
+    else:
+        chunks = chunks[:top_k]
 
     yield {'type': 'progress', 'stage': 'generating'}
 

@@ -13,7 +13,7 @@ CHUNKS = [
 
 
 def fake_embed(texts):
-    return [[0.0]]
+    return [[0.0] for _ in texts]
 
 
 def fake_search_chunks(vector, folder_id, embedding_model, top_k):
@@ -24,6 +24,10 @@ def fake_do_rerank(question, chunks):
     return chunks
 
 
+def fake_do_rewrite(question):
+    return 'Domanda riscritta.'
+
+
 def use_fakes(monkeypatch, pieces):
     def fake_generate_stream(messages):
         yield from pieces
@@ -32,6 +36,7 @@ def use_fakes(monkeypatch, pieces):
     monkeypatch.setattr(commands, 'search_chunks', fake_search_chunks)
     monkeypatch.setattr(commands, 'generate_stream', fake_generate_stream)
     monkeypatch.setattr(commands, 'do_rerank', fake_do_rerank)
+    monkeypatch.setattr(commands, 'do_rewrite', fake_do_rewrite)
 
 
 def run(question='Cosa significa E05?'):
@@ -122,3 +127,50 @@ def test_rerank_reorders_and_keeps_top_k(monkeypatch):
 
     result_ids = [chunk['document_id'] for chunk in events[-1]['chunks']]
     assert result_ids == ['D', 'C']
+
+
+def make_chunk(document_id, score):
+    return {
+        'document_id': document_id,
+        'document_name': f'{document_id}.txt',
+        'page': 1,
+        'text': f'Testo del chunk {document_id}.',
+        'chunk_index': 0,
+        'score': score,
+    }
+
+
+def test_rewrite_merges_both_searches(monkeypatch):
+    embedded_texts = []
+
+    def fake_embed_two(texts):
+        embedded_texts.extend(texts)
+        return [[0.0], [1.0]]
+
+    def fake_search_by_vector(vector, folder_id, embedding_model, top_k):
+        if vector == [0.0]:
+            return [make_chunk('A', 0.4)]
+        return [make_chunk('B', 0.7), make_chunk('A', 0.5)]
+
+    use_fakes(monkeypatch, ['Risposta [1].'])
+    monkeypatch.setattr(commands, 'embed', fake_embed_two)
+    monkeypatch.setattr(commands, 'search_chunks', fake_search_by_vector)
+    monkeypatch.setattr(config, 'REWRITE_ENABLED', True)
+
+    events = list(commands.run_query('f1', 3, 'Domanda?', True))
+
+    stages = [event['stage'] for event in events if event['type'] == 'progress']
+    assert stages == [
+        'rewriting',
+        'embedding_question',
+        'searching',
+        'generating',
+    ]
+
+    assert embedded_texts == ['Domanda?', 'Domanda riscritta.']
+
+    result_chunks = [
+        (chunk['document_id'], chunk['score'])
+        for chunk in events[-1]['chunks']
+    ]
+    assert result_chunks == [('B', 0.7), ('A', 0.5)]
