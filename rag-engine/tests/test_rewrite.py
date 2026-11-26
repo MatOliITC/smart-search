@@ -1,7 +1,7 @@
 import pytest
 
 from rag.rewrite import (
-    REWRITE_SYSTEM_PROPMT,
+    REWRITE_SYSTEM_PROMPT,
     build_rewrite_messages,
     clean_rewrite,
     merge_results,
@@ -124,7 +124,7 @@ def test_build_rewrite_messages():
     messages = build_rewrite_messages(question='Question?')
 
     assert messages[SYSTEM_PROMPT]['role'] == 'system'
-    assert messages[SYSTEM_PROMPT]['content'] == REWRITE_SYSTEM_PROPMT
+    assert messages[SYSTEM_PROMPT]['content'] == REWRITE_SYSTEM_PROMPT
     assert messages[USER_PROMPT]['content'] == 'Question?'
 
 
@@ -136,6 +136,7 @@ def test_build_rewrite_messages():
         ('"codice E05 caldaia"', 'codice E05 caldaia'),
         ('', 'Question?'),
         (' \n ', 'Question?'),
+        (None, 'Question?'),
         ('x' * 301, 'Question?'),
     ],
 )
