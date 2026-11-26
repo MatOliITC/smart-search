@@ -31,6 +31,10 @@ RERANK_PROVIDER = os.environ.get('RERANK_PROVIDER', 'ollama')
 RERANK_MODEL = os.environ.get('RERANK_MODEL', 'gemma3:4b')
 RERANK_CANDIDATES = 10
 
+REWRITE_ENABLED = os.environ.get('REWRITE_ENABLED', 'false').lower() == 'true'
+REWRITE_PROVIDER = os.environ.get('REWRITE_PROVIDER', 'ollama')
+REWRITE_MODEL = os.environ.get('REWRITE_MODEL', 'gemma3:4b')
+
 EMBEDDING_BATCH_SIZE = 32
 
 LLM_TEMPERATURE = 0
